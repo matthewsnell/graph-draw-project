@@ -47,7 +47,7 @@ public class Connection {
     void draw() {
         sr.begin(ShapeRenderer.ShapeType.Line);
         sr.setColor(Colours.darkGrey);
-        if (isInPath) { sr.setColor(Color.GREEN);}
+        if (isInPath) { sr.setColor(Colours.green);}
         sr.line(start.getX(), start.getY(), end.getX(), end.getY());
         sr.end();
     }

@@ -1,9 +1,11 @@
 package com.graph.draw;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -27,35 +29,24 @@ public class Graph {
         this.sr = sr;
     }
 
-    void addRandomNode() {
-        int xChord = rand.nextInt(1760) + 20;
-        int yChord = rand.nextInt(950) + 20;
-        boolean newChords = false;
-
-        for (Node node : nodes) {
-            if ((Math.pow(xChord - node.getX(), 2) + Math.pow(yChord - node.getY(), 2)) < 600) {
-                newChords = true;
-            }
-        }
-
-        if (newChords != true) {
-            nodes.add(new Node(nodes.size(), xChord, yChord, sr));
-        }
-        nodeSelectCount = 0;
-        if (nodes.size() > 1) {
-            conStartNode.setSelected(false);
-        } else {
-            conStartNode = nodes.get(0);
-        }
+    boolean isInBounds(float x, float y) {
+        boolean isValid = false;
+        if (x > 320 && x < 1720 && y < 920 && y > 90)
+            isValid = true;
+        return  isValid;
     }
 
     void addNode() {
-        nodes.add(new Node(nodes.size(), Gdx.input.getX(), 1000 - Gdx.input.getY(), sr));
-        nodeSelectCount = 0;
-        if (nodes.size() > 1) {
-            conStartNode.setSelected(false);
-        } else {
-            conStartNode = nodes.get(0);
+        float x = Gdx.input.getX();
+        float y = 1000 - Gdx.input.getY();
+        if (isInBounds(x, y)) {
+            nodes.add(new Node(nodes.size(), x, y, sr));
+            nodeSelectCount = 0;
+            if (nodes.size() > 1) {
+                conStartNode.setSelected(false);
+            } else {
+                conStartNode = nodes.get(0);
+            }
         }
     }
 
@@ -120,12 +111,16 @@ public class Graph {
     }
 
     void moveNode() {
-        if (currentLockedNode != null) {
-            currentLockedNode.setX(Gdx.input.getX());
-            currentLockedNode.setY(1000 - Gdx.input.getY());
-            for (Connection con : currentLockedNode.getConnections().values()) {
-                con.calcLength();
-                con.getEnd().getConnection(currentLockedNode).setLength(con.getLength());
+        float x = Gdx.input.getX();
+        float y = 1000 - Gdx.input.getY();
+        if (isInBounds(x, y)) {
+            if (currentLockedNode != null) {
+                currentLockedNode.setX(Gdx.input.getX());
+                currentLockedNode.setY(1000 - Gdx.input.getY());
+                for (Connection con : currentLockedNode.getConnections().values()) {
+                    con.calcLength();
+                    con.getEnd().getConnection(currentLockedNode).setLength(con.getLength());
+                }
             }
         }
     }
@@ -238,11 +233,6 @@ public class Graph {
         }
     }
 
-    void randomConnect() {
-        for (Node node : nodes) {
-            node.addConnection(nodes.get(rand.nextInt(nodes.size() -1)) , nodes);
-        }
-    }
 
     void checkOverlap(Node firstStart, Node firstEnd, Node secStart, Node secEnd) {
         System.out.println(Intersector.intersectSegments(firstStart.getX(), firstStart.getY(), firstEnd.getX(), firstEnd.getY(), secStart.getX(), secStart.getY(), secEnd.getX(), secEnd.getY(), null));
@@ -268,5 +258,65 @@ public class Graph {
         if (yDistance < 0) { yDistance *= -1; }
 
         return (int) (Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2)));
+    }
+
+    void keyListeners(Node nodeUnderMouse, boolean disableListeners) {
+        if (!disableListeners) {
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && !Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                resetCurrentLockedNode();
+            }
+
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                if (nodeUnderMouse == null) {
+                    resetCurrentLockedNode();
+                }
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
+                    && !Gdx.input.isKeyJustPressed(Input.Keys.M))) {
+                clearPath();
+            }
+
+            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if (nodeUnderMouse == currentLockedNode || nodeUnderMouse == null) {
+                    moveNode();
+                    if (isAutoRunDijkstra()) runDijkstras();
+                }
+            }
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                setCurrentLockedNode(nodeUnderMouse);
+            }
+//            if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+//                addNode();
+//            }
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                if (nodeUnderMouse == null) {
+                    addNode();
+                }
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+                manageConnection(nodeUnderMouse);
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+                setPathStartNode(nodeUnderMouse);
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                setPathEndNode(nodeUnderMouse);
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                runDijkstras();
+            }
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.FORWARD_DEL)) {
+                deleteNode(nodeUnderMouse);
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+                autoConnect();
+            }
+        }
     }
 }

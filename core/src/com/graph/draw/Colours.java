@@ -9,7 +9,7 @@ public abstract class Colours {
     public static final Color red = new Color(0.65882f, 0.2666f, 0.3411f, 1);
     public static final Color grey = new Color(0.8627f, 0.8745f, 0.898039f, 1);
     public static final Color lightGrey = new Color(0.960784f, 0.96471f, 0.95686f, 1);
-    public static final Color green = new Color(0.5098f, 0.17647f, 0.290196f, 1);
+    public static final Color green = new Color(0.2196f, 0.52549f, 0.34902f, 1);
 
 }
 

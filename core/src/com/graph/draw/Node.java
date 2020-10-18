@@ -156,10 +156,10 @@ public class Node {
     void draw() {
         sr.begin(ShapeType.Filled);
         sr.setColor(Colours.brown);
-        if (isInPath)  sr.setColor(Color.GREEN);
-        if (isStart) sr.setColor(Color.FOREST);
-        if (isEnd) sr.setColor(Color.FIREBRICK);
-        if (isSelected) sr.setColor(Colours.grey);
+        if (isInPath)  sr.setColor(Colours.green);
+        if (isStart) sr.setColor(Colours.green);
+        if (isEnd) sr.setColor(Colours.red);
+        if (isSelected) sr.setColor(Colours.darkGrey);
         sr.circle(x, y, 10);
         sr.end();
     }

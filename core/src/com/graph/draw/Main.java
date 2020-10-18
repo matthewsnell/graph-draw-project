@@ -2,25 +2,143 @@ package com.graph.draw;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.w3c.dom.Text;
 
 public class Main extends ApplicationAdapter {
 	ShapeRenderer sr;
 	Graph graph;
 	int screenHeight = 1000;
+	Stage stage;
+	Skin skin;
+	boolean disableGraphListeners;
+	TextButton cancelClearBtn;
+	TextButton resetBtn;
+	TextButton loadBtn;
+	TextButton saveBtn;
+	Image sideBar;
+	Button weightedToggle;
+	Image overlay;
+	Image clearMessageBox;
+	TextButton clearAcceptBtn;
+
 	@Override
 	public void create (){
+		disableGraphListeners = false;
 		sr= new ShapeRenderer();
 		graph = new Graph(sr);
+		stage = new Stage(new ScreenViewport());
+		skin = new Skin();
+		Gdx.input.setInputProcessor(stage);
+		skin.add("red-btn", new Texture(Gdx.files.internal("btn-red.png")));
+		skin.add("default-font", new BitmapFont(Gdx.files.internal("Arial-Medium.fnt")));
+		skin.add("grey-btn", new Texture(Gdx.files.internal("btn-grey.png")));
+		skin.add("toggle-off", new Texture(Gdx.files.internal("toggle-switch-red.png")));
+		skin.add("toggle-on", new Texture(Gdx.files.internal("toggle-switch-green.png")));
+
+		TextButton.TextButtonStyle greyBtnStyle = new TextButton.TextButtonStyle();
+		greyBtnStyle.up = skin.newDrawable("grey-btn");
+		greyBtnStyle.font = skin.getFont("default-font");
+		greyBtnStyle.fontColor = Colours.darkGrey;
+
+		TextButton.TextButtonStyle redBtnStyle = new TextButton.TextButtonStyle();
+		redBtnStyle.up = skin.newDrawable("red-btn");
+		redBtnStyle.font = skin.getFont("default-font");
+		redBtnStyle.fontColor = Colours.grey;
+
+		Button.ButtonStyle toggleStyle = new Button.ButtonStyle();
+		toggleStyle.up = skin.newDrawable("toggle-off");
+		toggleStyle.checked = skin.newDrawable("toggle-on");
+		// Create a table that fills the screen. Everything else will go inside this table.
+		Table table = new Table();
+		table.setFillParent(true);
+		stage.addActor(table);
+
+		resetBtn = new TextButton("Reset", redBtnStyle);
+		loadBtn = new TextButton("Load", greyBtnStyle);
+		saveBtn = new TextButton("Save", greyBtnStyle);
+		sideBar = new Image(new Texture(Gdx.files.internal("side-bar-grey.png")));
+		weightedToggle = new Button(toggleStyle);
+		overlay = new Image(new Texture(Gdx.files.internal("bg-overlay-grey.png")));
+		clearMessageBox = new Image(new Texture(Gdx.files.internal("clear-message.png")));
+		clearAcceptBtn = new TextButton("Clear", redBtnStyle);
+		cancelClearBtn = new TextButton("Cancel", greyBtnStyle);
+
+		stage.addActor(sideBar);
+		stage.addActor(loadBtn);
+		stage.addActor(saveBtn);
+		stage.addActor(resetBtn);
+		stage.addActor(weightedToggle);
+		stage.addActor(overlay);
+		stage.addActor(clearMessageBox);
+		stage.addActor(clearAcceptBtn);
+		stage.addActor(cancelClearBtn);
+
+		resetBtn.setPosition(1630,920);
+		saveBtn.setPosition(1630, 20);
+		loadBtn.setPosition(1460, 20);
+		clearAcceptBtn.setPosition(910, 460);
+		cancelClearBtn.setPosition(740, 460);
+		weightedToggle.setPosition(900, 920);
+
+		overlay.setVisible(false);
+		cancelClearBtn.setVisible(false);
+		clearAcceptBtn.setVisible(false);
+		clearMessageBox.setVisible(false);
+
+		resetBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				showClearWarning();
+				disableGraphListeners = true;
+			}
+		});
+
+		cancelClearBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				hideClearWarning();
+			}
+		});
+
+		clearAcceptBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				hideClearWarning();
+				graph = new Graph(sr);
+			}
+		});
+
+	}
+
+	void showClearWarning() {
+		overlay.setVisible(true);
+		cancelClearBtn.setVisible(true);
+		clearAcceptBtn.setVisible(true);
+		clearMessageBox.setVisible(true);
+		disableGraphListeners = false;
+	}
+
+	void hideClearWarning() {
+		overlay.setVisible(false);
+		cancelClearBtn.setVisible(false);
+		clearAcceptBtn.setVisible(false);
+		clearMessageBox.setVisible(false);
+		disableGraphListeners = false;
 	}
 
 	Node getNodeUnderMouse() {
 		Node nodeToSelect = null;
 		for (Node node : graph.getNodes()) {
-			if ((Math.pow(Gdx.input.getX() - node.getX(), 2) + Math.pow(screenHeight - Gdx.input.getY() - node.getY(), 2) < 400)) {
+			if ((Math.pow(Gdx.input.getX() - node.getX(), 2) + Math.pow(screenHeight - Gdx.input.getY() - node.getY(), 2) < 800)) {
 				nodeToSelect = node;
 				break;
 			}
@@ -33,60 +151,18 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glClearColor(Colours.lightGrey.r, Colours.lightGrey.g, Colours.lightGrey.b, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-
-		if (Gdx.input.isKeyJustPressed(Keys.K)) {
-			graph.randomConnect();
-		}
-
-		if (Gdx.input.isKeyJustPressed(Keys.R)) {
-			for (int i=0; i<500; i++) {
-
-				graph.addRandomNode();
-
-			}
-		}
-
-		if (Gdx.input.isKeyJustPressed(Keys.ANY_KEY) && !Gdx.input.isKeyJustPressed(Keys.M)) {
-			graph.resetCurrentLockedNode();
-		}
-
-		if (Gdx.input.isKeyJustPressed(Keys.ANY_KEY) && (!Gdx.input.isKeyJustPressed(Keys.SPACE)
-				&& !Gdx.input.isKeyJustPressed(Keys.M))) {
-			graph.clearPath();
-		}
-
-		if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-			graph.moveNode();
-			if (graph.isAutoRunDijkstra()) graph.runDijkstras();
-		}
-		if (Gdx.input.isKeyJustPressed(Keys.M)) {
-			graph.setCurrentLockedNode(getNodeUnderMouse());
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-			graph.addNode();
-		}
-		if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-			graph.manageConnection(getNodeUnderMouse());
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
-			graph.setPathStartNode(getNodeUnderMouse());
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-			graph.setPathEndNode(getNodeUnderMouse());
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-			graph.runDijkstras();
-		}
-
-		if (Gdx.input.isKeyJustPressed(Input.Keys.FORWARD_DEL)) {
-			graph.deleteNode(getNodeUnderMouse());
-		}
-		if (Gdx.input.isKeyJustPressed(Keys.ENTER)) {
-			graph.autoConnect();
-		}
 		graph.draw();
+		stage.act();
+		stage.draw();
+		graph.keyListeners(getNodeUnderMouse(), disableGraphListeners);
+	}
+
+
+
+	@Override
+	public void dispose() {
+		sr.dispose();
+		stage.dispose();
+		skin.dispose();
 	}
 }
