@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 1800;
 		config.height = 1000;
-		config.samples = 8;
+		config.samples = 4;
 		new LwjglApplication(new Main(), config);
 	}
 }
