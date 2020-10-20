@@ -11,10 +11,8 @@ public class WeightedGraph extends Graph {
     Scanner sc = new Scanner(System.in);
     SpriteBatch batch;
     BitmapFont font;
-    WeightedGraph(ShapeRenderer sr, SpriteBatch batch, BitmapFont font) {
+    WeightedGraph(ShapeRenderer sr) {
         super(sr);
-        this.batch = batch;
-        this.font = font;
     }
 
     // Prevents auto connection which uses lengths as weights
@@ -57,7 +55,7 @@ public class WeightedGraph extends Graph {
     @Override
     void draw() {
         super.draw();
-        DrawConnectionLengths();
+//        DrawConnectionLengths();
     }
 
 }

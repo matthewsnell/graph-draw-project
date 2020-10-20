@@ -10,9 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.w3c.dom.Text;
 
 public class Main extends ApplicationAdapter {
 	ShapeRenderer sr;
@@ -20,21 +18,23 @@ public class Main extends ApplicationAdapter {
 	int screenHeight = 1000;
 	Stage stage;
 	Skin skin;
-	boolean disableGraphListeners;
+	boolean isGraphLocked;
 	TextButton cancelClearBtn;
 	TextButton resetBtn;
 	TextButton loadBtn;
 	TextButton saveBtn;
 	Image sideBar;
 	Button weightedToggle;
+	Button directionalToggle;
 	Image overlay;
 	Image clearMessageBox;
 	TextButton clearAcceptBtn;
-	Label weightedText;
+	Label weightedLabel;
+	Label directionalLabel;
 
 	@Override
 	public void create (){
-		disableGraphListeners = false;
+		isGraphLocked = false;
 		sr= new ShapeRenderer();
 		graph = new Graph(sr);
 		stage = new Stage(new ScreenViewport());
@@ -71,29 +71,36 @@ public class Main extends ApplicationAdapter {
 		saveBtn = new TextButton("Save", greyBtnStyle);
 		sideBar = new Image(new Texture(Gdx.files.internal("side-bar-grey.png")));
 		weightedToggle = new Button(toggleStyle);
-		weightedText = new Label("Weighted", textStyle);
+		weightedLabel = new Label("Weighted", textStyle);
 		overlay = new Image(new Texture(Gdx.files.internal("bg-overlay-grey.png")));
 		clearMessageBox = new Image(new Texture(Gdx.files.internal("clear-message.png")));
 		clearAcceptBtn = new TextButton("Clear", redBtnStyle);
 		cancelClearBtn = new TextButton("Cancel", greyBtnStyle);
+		directionalLabel = new Label("Directional", textStyle);
+		directionalToggle = new Button(toggleStyle);
 
 		stage.addActor(sideBar);
 		stage.addActor(loadBtn);
 		stage.addActor(saveBtn);
 		stage.addActor(resetBtn);
 		stage.addActor(weightedToggle);
-		stage.addActor(weightedText);
+		stage.addActor(directionalLabel);
+		stage.addActor(directionalToggle);
+		stage.addActor(weightedLabel);
 		stage.addActor(overlay);
 		stage.addActor(clearMessageBox);
 		stage.addActor(clearAcceptBtn);
 		stage.addActor(cancelClearBtn);
+
 		resetBtn.setPosition(1630,920);
 		saveBtn.setPosition(1630, 20);
 		loadBtn.setPosition(1460, 20);
 		clearAcceptBtn.setPosition(910, 460);
 		cancelClearBtn.setPosition(740, 460);
 		weightedToggle.setPosition(900, 920);
-		weightedText.setPosition(820, 945);
+		weightedLabel.setPosition(820, 945);
+		directionalToggle.setPosition(650, 920);
+		directionalLabel.setPosition(570, 945);
 		overlay.setVisible(false);
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
@@ -103,7 +110,7 @@ public class Main extends ApplicationAdapter {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				showClearWarning();
-				disableGraphListeners = true;
+				isGraphLocked = true;
 			}
 		});
 
@@ -119,6 +126,16 @@ public class Main extends ApplicationAdapter {
 			public void changed(ChangeEvent event, Actor actor) {
 				hideClearWarning();
 				graph = new Graph(sr);
+				weightedToggle.setChecked(true);
+			}
+		});
+
+		weightedToggle.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				if (weightedToggle.isPressed()) {
+					showClearWarning();
+				}
 			}
 		});
 
@@ -129,7 +146,7 @@ public class Main extends ApplicationAdapter {
 		cancelClearBtn.setVisible(true);
 		clearAcceptBtn.setVisible(true);
 		clearMessageBox.setVisible(true);
-		disableGraphListeners = false;
+		isGraphLocked = true;
 	}
 
 	void hideClearWarning() {
@@ -137,7 +154,7 @@ public class Main extends ApplicationAdapter {
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
-		disableGraphListeners = false;
+		isGraphLocked = false;
 	}
 
 	Node getNodeUnderMouse() {
@@ -159,7 +176,7 @@ public class Main extends ApplicationAdapter {
 		graph.draw();
 		stage.act();
 		stage.draw();
-		graph.keyListeners(getNodeUnderMouse(), disableGraphListeners);
+		graph.keyListeners(getNodeUnderMouse(), isGraphLocked);
 	}
 
 
