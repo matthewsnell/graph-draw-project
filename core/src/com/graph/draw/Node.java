@@ -1,28 +1,27 @@
 package com.graph.draw;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
-public class Node {
-    int id;
-    float x;
-    float y;
-    HashMap<Integer, Connection> connections = new HashMap<Integer, Connection>();
-    HashMap<Integer, Connection> tempConnections = new HashMap<Integer, Connection>();
-    ShapeRenderer sr;
-    boolean isInPath = false;
-    boolean isSelected = false;
-    boolean isStart  = false;
-    boolean isEnd = false;
-    int tempLabel;
-    int permLabel;
-    int stageNumber;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-    public Node(int id, float x, float y, ShapeRenderer shaperenderer) {
+class Node {
+    private int id;
+    private float x;
+    private float y;
+    private HashMap<Integer, Connection> connections = new HashMap<>();
+    private HashMap<Integer, Connection> tempConnections = new HashMap<>();
+    private ShapeRenderer sr;
+    private boolean isInPath = false;
+    private boolean isSelected = false;
+    private boolean isStart  = false;
+    private boolean isEnd = false;
+    private int tempLabel;
+    private int permLabel;
+    private int stageNumber;
+
+    Node(int id, float x, float y, ShapeRenderer shaperenderer) {
         this.x = x;
         this.y = y;
         this.id = id;
@@ -57,10 +56,6 @@ public class Node {
             exists = true;
         }
         return exists;
-    }
-
-    HashMap<Integer, Connection> getTempConnections() {
-        return tempConnections;
     }
 
     Connection getConnection(Node toNode) {

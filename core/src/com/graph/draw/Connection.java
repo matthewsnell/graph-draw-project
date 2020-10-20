@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
-public class Connection {
-    Node start;
-    Node end;
-    ShapeRenderer sr;
-    int length;
-    boolean isInPath = false;
+class Connection {
+    private Node start;
+    private Node end;
+    private ShapeRenderer sr;
+    private int length;
+    private boolean isInPath = false;
 
     Connection(Node startNd, Node endNd, ShapeRenderer shaperenderer) {
         start = startNd;

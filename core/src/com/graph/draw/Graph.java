@@ -5,23 +5,20 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.Random;
-import java.lang.Math;
 
-public class Graph {
-    ArrayList<Node> nodes;
-    Node conStartNode;
-    Node pathStartNode = null;
-    Node pathEndNode = null;
+class Graph {
+    private Node conStartNode;
+    private Node pathStartNode = null;
+    private Node pathEndNode = null;
+    private int nodeSelectCount;
+    private boolean autoRunDijkstra;
+
     Node currentLockedNode;
     ShapeRenderer sr;
-    int nodeSelectCount;
-    boolean autoRunDijkstra;
-    Random rand = new Random();
+    ArrayList<Node> nodes;
 
 
     Graph(ShapeRenderer sr) {
@@ -29,7 +26,7 @@ public class Graph {
         this.sr = sr;
     }
 
-    boolean isInBounds(float x, float y) {
+    private boolean isInBounds(float x, float y) {
         boolean isValid = false;
         if (x > 320 && x < 1720 && y < 920 && y > 90)
             isValid = true;
@@ -287,9 +284,7 @@ public class Graph {
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                 setCurrentLockedNode(nodeUnderMouse);
             }
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-//                addNode();
-//            }
+
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                 if (nodeUnderMouse == null) {
                     addNode();

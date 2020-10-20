@@ -1,5 +1,4 @@
 package com.graph.draw;
-import com.badlogic.gdx.Gdx;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,10 +59,11 @@ abstract class Dijkstra {
     // Find shortest path by interpreting perm labels
     private static void findPath(ArrayList<Node> nodes, Node startNode, Node endNode) {
         while (endNode.getId() != startNode.getId()) {
-            for (int conId : endNode.connections.keySet()) {
+            HashMap<Integer, Connection> endNodeCons = endNode.getConnections();
+            for (int conId : endNodeCons.keySet()) {
                 // check if this
-                if (endNode.permLabel - endNode.connections.get(conId).getLength() == nodes.get(conId).permLabel) {
-                    endNode.connections.get(conId).setInPath(true);
+                if (endNode.getPermLabel() - endNodeCons.get(conId).getLength() == nodes.get(conId).getPermLabel()) {
+                    endNodeCons.get(conId).setInPath(true);
                     nodes.get(conId).getConnections().get(endNode.getId()).setInPath(true);
                     nodes.get(conId).setInPath(true);
                     endNode = nodes.get(conId);
