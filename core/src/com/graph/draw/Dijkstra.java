@@ -73,7 +73,7 @@ abstract class Dijkstra {
         }
     }
 
-    public static void run(ArrayList<Node> nodes, Node start, Node end) {
+    static void run(ArrayList<Node> nodes, Node start, Node end) {
         for (Node node : nodes) {
             node.setTempLabel(-1);
             node.setPermLabel(-1);

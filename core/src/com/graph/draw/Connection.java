@@ -36,6 +36,9 @@ class Connection {
         return end;
     }
 
+    Node getStart() {
+        return start;
+    }
     void setInPath(boolean b) {
         isInPath = b;
     }

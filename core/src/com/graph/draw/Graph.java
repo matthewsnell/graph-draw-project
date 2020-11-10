@@ -20,7 +20,6 @@ class Graph {
     ShapeRenderer sr;
     ArrayList<Node> nodes;
 
-
     Graph(ShapeRenderer sr) {
         nodes = new ArrayList<Node>();
         this.sr = sr;
@@ -290,7 +289,7 @@ class Graph {
                     addNode();
                 }
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+            if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
                 manageConnection(nodeUnderMouse);
             }
 
@@ -311,6 +310,9 @@ class Graph {
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                 autoConnect();
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                MatthewsMST.run(nodes);
             }
         }
     }
