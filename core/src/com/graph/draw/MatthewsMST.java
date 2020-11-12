@@ -1,8 +1,6 @@
 package com.graph.draw;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 
 public abstract class MatthewsMST {
     static void run(ArrayList<Node> nodes) {
@@ -17,7 +15,16 @@ public abstract class MatthewsMST {
 
     }
 
+    static void DFS(ArrayList<Node> nodes) {
+        Queue<Node> discovered = new LinkedList<Node>();
+        Stack<Node> parentNode = new Stack<>();
+        Node currentNode = nodes.get(0);
+        ArrayList<Integer> currentNodeCons = new ArrayList<>(currentNode.getConnections().keySet());
+
+    }
+
     static void removeGreatest(ArrayList<Connection> connections, ArrayList<Node> nodes) {
+        DFS(nodes);
         Connection largest = largestConnection(connections);
         if (largest.getEnd().getConnections().size() > 1 && largest.getStart().getConnections().size() > 1) {
             largest.getStart().removeConnection(largest.getEnd());
