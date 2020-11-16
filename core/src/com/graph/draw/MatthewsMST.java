@@ -15,28 +15,49 @@ public abstract class MatthewsMST {
 
     }
 
-    static void DFS(ArrayList<Node> nodes) {
+    static Integer DFS(ArrayList<Node> nodes) {
         Queue<Node> discovered = new LinkedList<Node>();
         Stack<Node> parentNode = new Stack<>();
         Node currentNode = nodes.get(0);
-        ArrayList<Integer> currentNodeCons = new ArrayList<>(currentNode.getConnections().keySet());
+        parentNode.push(currentNode);
+        discovered.add(currentNode);
+        while (parentNode.size() > 0) {
+            currentNode = parentNode.peek();
+            ArrayList<Integer> currentNodeCons = new ArrayList<>(currentNode.getConnections().keySet());
+            boolean allChildrenDiscovered = true;
+            for (Integer con: currentNodeCons) {
+                if (!discovered.contains(nodes.get(con))) {
+                    allChildrenDiscovered = false;
+                    parentNode.push(nodes.get(con));
+                    discovered.add(nodes.get(con));
+                    break;
+                }
+            }
+            if (allChildrenDiscovered) {
+                parentNode.pop();
+            }
+        }
+        return discovered.size();
+
 
     }
 
     static void removeGreatest(ArrayList<Connection> connections, ArrayList<Node> nodes) {
-        DFS(nodes);
         Connection largest = largestConnection(connections);
-        if (largest.getEnd().getConnections().size() > 1 && largest.getStart().getConnections().size() > 1) {
-            largest.getStart().removeConnection(largest.getEnd());
-            largest.getEnd().removeConnection(largest.getStart());
-            System.out.println(connections.size());
-            System.out.println(nodes.size());
-            if (connections.size() > nodes.size()*2) {
-                removeGreatest(connections, nodes);
-            }
+        Node conStart = largest.getStart();
+        Node conEnd = largest.getEnd();
+        connections.remove(connections.indexOf(largest));
+        largest.getStart().removeConnection(largest.getEnd());
+        largest.getEnd().removeConnection(largest.getStart());
+        if (DFS(nodes) < nodes.size()) {
+
+            System.out.println("add back");
         }
-        else {
-            connections.remove(connections.indexOf(largest));
+        System.out.println(connections.size());
+        System.out.println(connections);
+        System.out.println(nodes.size());
+        if (connections.size() > nodes.size() *2){
+            removeGreatest(connections, nodes);
         }
     }
     static Connection largestConnection(ArrayList<Connection> connections) {
