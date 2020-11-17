@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
-
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -19,6 +18,7 @@ class Graph {
     Node currentLockedNode;
     ShapeRenderer sr;
     ArrayList<Node> nodes;
+
 
     Graph(ShapeRenderer sr) {
         nodes = new ArrayList<Node>();
@@ -258,7 +258,11 @@ class Graph {
 
     void keyListeners(Node nodeUnderMouse, boolean disableListeners) {
         if (!disableListeners) {
-
+            if (Gdx.input.isKeyPressed(Input.Keys.R)) {
+                if (nodeUnderMouse == null) {
+                    addNode();
+                }
+            }
             if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && !Gdx.input.isKeyJustPressed(Input.Keys.M)) {
                 resetCurrentLockedNode();
             }

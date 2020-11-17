@@ -50,13 +50,14 @@ public abstract class MatthewsMST {
         largest.getStart().removeConnection(largest.getEnd());
         largest.getEnd().removeConnection(largest.getStart());
         if (DFS(nodes) < nodes.size()) {
-
+            conStart.addConnection(conEnd, nodes);
+            conEnd.addConnection(conStart, nodes);
             System.out.println("add back");
         }
         System.out.println(connections.size());
         System.out.println(connections);
         System.out.println(nodes.size());
-        if (connections.size() > nodes.size() *2){
+        if (connections.size() > 0){
             removeGreatest(connections, nodes);
         }
     }
