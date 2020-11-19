@@ -4,15 +4,27 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
-public class WeightedGraph extends Graph {
+class WeightedGraph extends Graph {
     Scanner sc = new Scanner(System.in);
     SpriteBatch batch;
     BitmapFont font;
-    WeightedGraph(ShapeRenderer sr) {
+    Stage stage;
+    Label weight;
+    Label.LabelStyle weightStyle;
+    Skin skin;
+    HashMap<Connection, Label> labels;
+    WeightedGraph(ShapeRenderer sr, Stage stage, Skin skin) {
         super(sr);
+        this.stage = stage;
+        this.skin = skin;
+        labels = new HashMap<>();
     }
 
     // Prevents auto connection which uses lengths as weights
@@ -32,30 +44,46 @@ public class WeightedGraph extends Graph {
     // Prevents updating weight with length after node is moved
     @Override
     void moveNode() {
-        if (currentLockedNode != null) {
-            currentLockedNode.setX(Gdx.input.getX());
-            currentLockedNode.setY(1000 - Gdx.input.getY());
+        int x = Gdx.input.getX();
+        int y = 1000 - Gdx.input.getY();
+        if (isInBounds(x, y)) {
+            if (currentLockedNode != null) {
+                currentLockedNode.setX(x);
+                currentLockedNode.setY(y);
+                for (Connection con : currentLockedNode.getConnections().values()) {
+                    labels.get(con).remove();
+                    labels.get(con.getEnd().getConnection(currentLockedNode)).remove();
+                    labels.remove(con);
+                    labels.remove(con.getEnd().getConnection(currentLockedNode));
+
+                }
+            }
         }
     }
 
     void DrawConnectionLengths() {
-        batch.begin();
-        font.getData().setScale((float) 1.5, (float) 1.5);
+        Label.LabelStyle weightStyle = new Label.LabelStyle();
+        weightStyle.font = skin.getFont("default-font");
+        weightStyle.fontColor = Colours.darkGrey;
         for (Node node: nodes) {
             for (Connection con : node.getConnections().values()) {
                 int xMid = (int) (node.getX() + con.getEnd().getX()) / 2;
                 int yMid = (int) ((node.getY() + con.getEnd().getY()) / 2);
                 String length = String.valueOf(con.getLength());
-                font.draw(batch, length, xMid, yMid);
+                System.out.println(labels.get(con));
+                if (labels.get(con) == null) {
+                    labels.put(con, new Label(length, weightStyle));
+                    stage.addActor(labels.get(con));
+                    labels.get(con).setPosition(xMid, yMid);
+                }
             }
         }
-        batch.end();
     }
 
     @Override
     void draw() {
         super.draw();
-//        DrawConnectionLengths();
+        DrawConnectionLengths();
     }
 
 }

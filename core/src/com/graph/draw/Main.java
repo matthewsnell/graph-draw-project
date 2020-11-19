@@ -135,8 +135,8 @@ public class Main extends ApplicationAdapter {
 		weightedToggle.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				if (weightedToggle.isPressed()) {
-					showClearWarning();
+				if (weightedToggle.isChecked()) {
+					graph = new WeightedGraph(sr, stage, skin);
 				}
 			}
 		});
@@ -175,10 +175,10 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glClearColor(Colours.lightGrey.r, Colours.lightGrey.g, Colours.lightGrey.b, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glHint(GL20.GL_GENERATE_MIPMAP_HINT, GL20.GL_NICEST);
+		graph.keyListeners(getNodeUnderMouse(), isGraphLocked);
 		graph.draw();
 		stage.act();
 		stage.draw();
-		graph.keyListeners(getNodeUnderMouse(), isGraphLocked);
 	}
 
 

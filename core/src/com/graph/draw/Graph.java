@@ -25,7 +25,7 @@ class Graph {
         this.sr = sr;
     }
 
-    private boolean isInBounds(float x, float y) {
+    protected boolean isInBounds(float x, float y) {
         boolean isValid = false;
         if (x > 320 && x < 1720 && y < 920 && y > 90)
             isValid = true;
