@@ -46,12 +46,15 @@ public abstract class MatthewsMST {
         Connection largest = largestConnection(connections);
         Node conStart = largest.getStart();
         Node conEnd = largest.getEnd();
+        int length = largest.getLength();
         connections.remove(connections.indexOf(largest));
         largest.getStart().removeConnection(largest.getEnd());
         largest.getEnd().removeConnection(largest.getStart());
         if (DFS(nodes) < nodes.size()) {
             conStart.addConnection(conEnd, nodes);
+            conStart.getConnection(conEnd).setLength(length);
             conEnd.addConnection(conStart, nodes);
+            conEnd.getConnection(conStart).setLength(length);
             System.out.println("add back");
         }
         System.out.println(connections.size());
