@@ -28,6 +28,15 @@ class WeightedGraph extends Graph {
         labels = new HashMap<>();
     }
 
+    @Override
+    void removeConnection(Node startNode, Node selectedNode) {
+        labels.get(startNode.getConnection(selectedNode)).remove();
+        labels.get(selectedNode.getConnection(startNode)).remove();
+        labels.remove(startNode.getConnection(selectedNode));
+        labels.remove(selectedNode.getConnection(startNode));
+        super.removeConnection(startNode, selectedNode);
+    }
+
     // Prevents auto connection which uses lengths as weights
     @Override
     void autoConnect() {
