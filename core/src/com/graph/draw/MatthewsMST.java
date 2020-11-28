@@ -5,14 +5,25 @@ import java.util.*;
 public abstract class MatthewsMST {
     static void run(ArrayList<Node> nodes) {
         ArrayList<Connection> connections = new ArrayList<>();
+        ArrayList<Connection> actualConnections = new ArrayList<>();
+        for (Node node : nodes) {
+            for (Connection con : node.getConnections().values()) {
+                connections.add(con);
+                actualConnections.add(con);
+            }
+        }
+        removeGreatest(connections, actualConnections, nodes);
+
+    }
+
+    static Integer getNumConnections(ArrayList<Node> nodes){
+        ArrayList<Connection> connections = new ArrayList<>();
         for (Node node : nodes) {
             for (Connection con : node.getConnections().values()) {
                 connections.add(con);
             }
         }
-
-        removeGreatest(connections, nodes);
-
+        return connections.size();
     }
 
     static Integer DFS(ArrayList<Node> nodes) {
@@ -42,12 +53,15 @@ public abstract class MatthewsMST {
 
     }
 
-    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Node> nodes) {
+    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes) {
         Connection largest = largestConnection(connections);
         Node conStart = largest.getStart();
         Node conEnd = largest.getEnd();
         int length = largest.getLength();
         connections.remove(connections.indexOf(largest));
+        connections.remove(connections.indexOf(largest.getEnd().getConnection(largest.getStart())));
+        actualConnections.remove(actualConnections.indexOf(largest));
+        actualConnections.remove(actualConnections.indexOf(largest.getEnd().getConnection(largest.getStart())));
         largest.getStart().removeConnection(largest.getEnd());
         largest.getEnd().removeConnection(largest.getStart());
         if (DFS(nodes) < nodes.size()) {
@@ -55,13 +69,12 @@ public abstract class MatthewsMST {
             conStart.getConnection(conEnd).setLength(length);
             conEnd.addConnection(conStart, nodes);
             conEnd.getConnection(conStart).setLength(length);
-            System.out.println("add back");
+            actualConnections.add(conStart.getConnection(conEnd));
+            actualConnections.add(conEnd.getConnection(conStart));
         }
-        System.out.println(connections.size());
-        System.out.println(connections);
-        System.out.println(nodes.size());
-        if (connections.size() > 0){
-            removeGreatest(connections, nodes);
+
+        if (actualConnections.size() >= nodes.size()*2){
+            removeGreatest(connections, actualConnections, nodes);
         }
     }
     static Connection largestConnection(ArrayList<Connection> connections) {

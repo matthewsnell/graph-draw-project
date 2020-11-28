@@ -127,8 +127,11 @@ public class Main extends ApplicationAdapter {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				hideClearWarning();
-				graph = new Graph(sr);
-				weightedToggle.setChecked(true);
+				if (weightedToggle.isChecked()) {
+					graph = new WeightedGraph(sr, stage, skin);
+				} else {
+					graph = new Graph(sr);
+				}
 			}
 		});
 
@@ -137,6 +140,8 @@ public class Main extends ApplicationAdapter {
 			public void changed(ChangeEvent event, Actor actor) {
 				if (weightedToggle.isChecked()) {
 					graph = new WeightedGraph(sr, stage, skin);
+				} else {
+					graph = new Graph(sr);
 				}
 			}
 		});
