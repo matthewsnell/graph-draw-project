@@ -33,6 +33,9 @@ public class Main extends ApplicationAdapter {
 	TextButton clearAcceptBtn;
 	Label weightedLabel;
 	Label directionalLabel;
+	Label titleLabel;
+	Image sidePanel1;
+	Label pathFindingLabel;
 
 	@Override
 	public void create (){
@@ -48,6 +51,17 @@ public class Main extends ApplicationAdapter {
 		skin.add("grey-btn", new Texture(Gdx.files.internal("btn-grey.png")));
 		skin.add("toggle-off", new Texture(Gdx.files.internal("toggle-switch-red.png")));
 		skin.add("toggle-on", new Texture(Gdx.files.internal("toggle-switch-green.png")));
+		skin.add("arial-font", new BitmapFont(Gdx.files.internal("Arial.fnt")));
+		skin.add("arial-bold-med", new BitmapFont(Gdx.files.internal("Arial-Bold-Medium.fnt")));
+		skin.add("arial-bold-large", new BitmapFont(Gdx.files.internal("Arial-Bold-Large.fnt")));
+
+		Label.LabelStyle subHeadingLableStyle = new Label.LabelStyle();
+		subHeadingLableStyle.font = skin.getFont("arial-bold-med");
+		subHeadingLableStyle.fontColor = Colours.red;
+
+		Label.LabelStyle titleLabelStyle = new Label.LabelStyle();
+		titleLabelStyle.font = skin.getFont("arial-bold-large");
+		titleLabelStyle.fontColor = Colours.darkGrey;
 
 		TextButton.TextButtonStyle greyBtnStyle = new TextButton.TextButtonStyle();
 		greyBtnStyle.up = skin.newDrawable("grey-btn");
@@ -80,6 +94,9 @@ public class Main extends ApplicationAdapter {
 		cancelClearBtn = new TextButton("Cancel", greyBtnStyle);
 		directionalLabel = new Label("Directional", textStyle);
 		directionalToggle = new Button(toggleStyle);
+		titleLabel = new Label("Graph Mode", titleLabelStyle);
+		sidePanel1 = new Image(new Texture(Gdx.files.internal("panel.png")));
+		pathFindingLabel = new Label("Pathfinding", subHeadingLableStyle);
 
 		stage.addActor(sideBar);
 		stage.addActor(loadBtn);
@@ -93,6 +110,9 @@ public class Main extends ApplicationAdapter {
 		stage.addActor(clearMessageBox);
 		stage.addActor(clearAcceptBtn);
 		stage.addActor(cancelClearBtn);
+		stage.addActor(titleLabel);
+		stage.addActor(sidePanel1);
+		stage.addActor(pathFindingLabel);
 
 		resetBtn.setPosition(1630,920);
 		saveBtn.setPosition(1630, 20);
@@ -103,10 +123,15 @@ public class Main extends ApplicationAdapter {
 		weightedLabel.setPosition(820, 945);
 		directionalToggle.setPosition(650, 920);
 		directionalLabel.setPosition(570, 945);
+		titleLabel.setPosition(40, 940);
+		sidePanel1.setPosition(-13,630);
+		pathFindingLabel.setPosition(10, 600);
+
 		overlay.setVisible(false);
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
+
 
 		resetBtn.addListener(new ChangeListener() {
 			@Override

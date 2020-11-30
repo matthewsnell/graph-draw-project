@@ -55,11 +55,7 @@ public abstract class MatthewsMST {
             conStart.getConnection(conEnd).setLength(length);
             conEnd.addConnection(conStart, nodes);
             conEnd.getConnection(conStart).setLength(length);
-            System.out.println("add back");
         }
-        System.out.println(connections.size());
-        System.out.println(connections);
-        System.out.println(nodes.size());
         if (connections.size() > 0){
             removeGreatest(connections, nodes);
         }
