@@ -52,15 +52,15 @@ public class Main extends ApplicationAdapter {
 		skin.add("toggle-off", new Texture(Gdx.files.internal("toggle-switch-red.png")));
 		skin.add("toggle-on", new Texture(Gdx.files.internal("toggle-switch-green.png")));
 		skin.add("arial-font", new BitmapFont(Gdx.files.internal("Arial.fnt")));
-		skin.add("arial-bold-med", new BitmapFont(Gdx.files.internal("Arial-Bold-Medium.fnt")));
-		skin.add("arial-bold-large", new BitmapFont(Gdx.files.internal("Arial-Bold-Large.fnt")));
+		skin.add("arial-bold-large", new BitmapFont(Gdx.files.internal("Arial-Bold-Medium.fnt")));
+		skin.add("arial-med", new BitmapFont(Gdx.files.internal("Arial-Medium-Large.fnt")));
 
 		Label.LabelStyle subHeadingLableStyle = new Label.LabelStyle();
-		subHeadingLableStyle.font = skin.getFont("arial-bold-med");
+		subHeadingLableStyle.font = skin.getFont("default-font");
 		subHeadingLableStyle.fontColor = Colours.red;
 
 		Label.LabelStyle titleLabelStyle = new Label.LabelStyle();
-		titleLabelStyle.font = skin.getFont("arial-bold-large");
+		titleLabelStyle.font = skin.getFont("arial-med");
 		titleLabelStyle.fontColor = Colours.darkGrey;
 
 		TextButton.TextButtonStyle greyBtnStyle = new TextButton.TextButtonStyle();
@@ -123,7 +123,7 @@ public class Main extends ApplicationAdapter {
 		weightedLabel.setPosition(820, 945);
 		directionalToggle.setPosition(650, 920);
 		directionalLabel.setPosition(570, 945);
-		titleLabel.setPosition(40, 940);
+		titleLabel.setPosition(10, 940);
 		sidePanel1.setPosition(-13,630);
 		pathFindingLabel.setPosition(10, 600);
 
