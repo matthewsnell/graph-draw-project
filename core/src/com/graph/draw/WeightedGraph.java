@@ -40,6 +40,13 @@ class WeightedGraph extends Graph {
     // Prevents auto connection which uses lengths as weights
     @Override
     void autoConnect() {
+        super.autoConnect();
+        for (Node node : nodes) {
+            node.getConnections().forEach((k, v) -> {
+                Integer randomWeight = (int) (Math.random() * 50);
+                v.setLength(randomWeight);
+            });
+        }
     }
 
     @Override
@@ -90,6 +97,10 @@ class WeightedGraph extends Graph {
         }
     }
 
+    void setWeight (int weight, Node startNode, Node endNode) {
+        startNode.getConnection(endNode).setLength(weight);
+        endNode.getConnection(startNode).setLength(weight);
+    }
     @Override
     void draw() {
         super.draw();
