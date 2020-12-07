@@ -7,24 +7,13 @@ public abstract class MatthewsMST {
         ArrayList<Connection> connections = new ArrayList<>();
         ArrayList<Connection> actualConnections = new ArrayList<>();
         for (Node node : nodes) {
-            for (Connection con : node.getConnections().values()) {
-                connections.add(con);
-                actualConnections.add(con);
-            }
+            connections.addAll(node.getConnections().values());
+            actualConnections.addAll(node.getConnections().values());
         }
         removeGreatest(connections, actualConnections, nodes);
 
     }
 
-    static Integer getNumConnections(ArrayList<Node> nodes){
-        ArrayList<Connection> connections = new ArrayList<>();
-        for (Node node : nodes) {
-            for (Connection con : node.getConnections().values()) {
-                connections.add(con);
-            }
-        }
-        return connections.size();
-    }
 
     static Integer DFS(ArrayList<Node> nodes) {
         Queue<Node> discovered = new LinkedList<Node>();
