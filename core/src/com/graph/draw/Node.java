@@ -155,7 +155,7 @@ class Node {
         if (isStart) sr.setColor(Colours.green);
         if (isEnd) sr.setColor(Colours.red);
         if (isSelected) sr.setColor(Colours.darkGrey);
-        sr.circle(x, y, 10);
+        sr.circle(x, y, 8);
         sr.end();
     }
 }

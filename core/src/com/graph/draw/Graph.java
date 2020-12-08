@@ -166,13 +166,16 @@ class Graph {
     }
 
     void draw() {
+        int cons = 0;
         for (Node node : nodes) {
             node.drawConnections();
+            cons += node.getConnections().size();
 
         }
         for (Node node : nodes) {
             node.draw();
         }
+        System.out.println(cons);
     }
 
     void runDijkstras() {
@@ -229,6 +232,26 @@ class Graph {
         }
     }
 
+    void autoConnectNonPlanar() {
+        for (Node node : nodes) {
+            int shortestDistance = 9999999;
+            Node closest = null;
+            for (Node loopNode : nodes) {
+                if (loopNode != node) {
+                    if (getDistanceBetweenNodes(node, loopNode) < shortestDistance) {
+                        if (!node.hasConnection(loopNode)) {
+                                closest = loopNode;
+                                shortestDistance = getDistanceBetweenNodes(node, loopNode);
+                        }
+                    }
+                }
+            }
+            if (closest != null) {
+                node.addConnection(closest, nodes);
+                closest.addConnection(node, nodes);
+            }
+        }
+    }
 
     void checkOverlap(Node firstStart, Node firstEnd, Node secStart, Node secEnd) {
         System.out.println(Intersector.intersectSegments(firstStart.getX(), firstStart.getY(), firstEnd.getX(), firstEnd.getY(), secStart.getX(), secStart.getY(), secEnd.getX(), secEnd.getY(), null));
@@ -316,7 +339,46 @@ class Graph {
                 autoConnect();
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-                MatthewsMST.run(nodes);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // do something important here, asynchronously to the rendering thread
+                        MatthewsMST.run(nodes);
+                        // post a Runnable to the rendering thread that processes the result
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
+                            }
+                        });
+                    }
+                }).start();
+
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
+                autoConnectNonPlanar();
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+                for (int i = 0; i < 5000; i++) {
+                    float x = (int)(Math.random() * 1920);
+                    float y = (int)(Math.random() * 1000);
+                    boolean valid = true;
+                    for (Node node: nodes) {
+                        if (Math.pow(x - node.getX(),2)+ Math.pow(y - node.getY(),2) < 500) {
+                            valid = false;
+                        }
+                    }
+                    if (isInBounds(x, y) && valid) {
+                        nodes.add(new Node(nodes.size(), x, y, sr));
+                        nodeSelectCount = 0;
+                        if (nodes.size() > 1) {
+                            conStartNode.setSelected(false);
+                        } else {
+                            conStartNode = nodes.get(0);
+                        }
+                    }
+
+                }
             }
         }
     }

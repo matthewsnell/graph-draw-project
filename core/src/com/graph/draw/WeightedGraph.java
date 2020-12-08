@@ -42,10 +42,10 @@ class WeightedGraph extends Graph {
     void autoConnect() {
         super.autoConnect();
         for (Node node : nodes) {
-            node.getConnections().forEach((k, v) -> {
-                Integer randomWeight = (int) (Math.random() * 50);
-                v.setLength(randomWeight);
-            });
+//            node.getConnections().forEach((k, v) -> {
+//                Integer randomWeight = (int) (Math.random() * 50);
+//                v.setLength(randomWeight);
+//            });
         }
     }
 

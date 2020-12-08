@@ -31,7 +31,6 @@ abstract class Dijkstra {
         HashMap<Integer, Connection> connections  = currentNode.getConnections();
 
         currentNode.setPermLabel(currentNode.getTempLabel());
-
         for (int conId : connections.keySet()) {
             int connectionLength = connections.get(conId).getLength();
             int connectionTemp = nodes.get(conId).getTempLabel();

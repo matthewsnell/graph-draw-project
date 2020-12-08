@@ -44,6 +44,12 @@ public abstract class MatthewsMST {
 
     static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes) {
         Connection largest = largestConnection(connections);
+        largest.setInPath(true);
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Node conStart = largest.getStart();
         Node conEnd = largest.getEnd();
         int length = largest.getLength();
@@ -56,6 +62,13 @@ public abstract class MatthewsMST {
         if (DFS(nodes) < nodes.size()) {
             conStart.addConnection(conEnd, nodes);
             conStart.getConnection(conEnd).setLength(length);
+            conStart.getConnection(conEnd).setGreen(true);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            conStart.getConnection(conEnd).setGreen(false);
             conEnd.addConnection(conStart, nodes);
             conEnd.getConnection(conStart).setLength(length);
             actualConnections.add(conStart.getConnection(conEnd));
