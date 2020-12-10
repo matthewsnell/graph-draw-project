@@ -43,10 +43,11 @@ public abstract class MatthewsMST {
     }
 
     static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes) {
+        int time = 1300/connections.size();
         Connection largest = largestConnection(connections);
         largest.setInPath(true);
         try {
-            Thread.sleep(300);
+            Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -64,7 +65,7 @@ public abstract class MatthewsMST {
             conStart.getConnection(conEnd).setLength(length);
             conStart.getConnection(conEnd).setGreen(true);
             try {
-                Thread.sleep(300);
+                Thread.sleep(time);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -76,7 +77,20 @@ public abstract class MatthewsMST {
         }
 
         if (actualConnections.size() >= nodes.size()*2){
+            System.out.println("actual:" + actualConnections.size() + "  " + nodes.size()*2);
             removeGreatest(connections, actualConnections, nodes);
+        } else {
+            for (Connection con: actualConnections) {
+                con.setGreen(true);
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            for (Connection con: actualConnections) {
+                con.setGreen(false);
+            }
         }
     }
     static Connection largestConnection(ArrayList<Connection> connections) {

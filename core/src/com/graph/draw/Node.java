@@ -70,7 +70,8 @@ class Node {
         tempConnections =  new HashMap<Integer, Connection>();
     }
     void drawConnections() {
-        for (Connection vert : connections.values()) {
+        ArrayList<Connection> cons = new ArrayList<Connection>(connections.values());
+        for (Connection vert : cons) {
             vert.draw();
         }
     }

@@ -167,6 +167,7 @@ class Graph {
 
     void draw() {
         int cons = 0;
+
         for (Node node : nodes) {
             node.drawConnections();
             cons += node.getConnections().size();
@@ -175,7 +176,6 @@ class Graph {
         for (Node node : nodes) {
             node.draw();
         }
-        System.out.println(cons);
     }
 
     void runDijkstras() {
@@ -339,20 +339,25 @@ class Graph {
                 autoConnect();
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // do something important here, asynchronously to the rendering thread
-                        MatthewsMST.run(nodes);
-                        // post a Runnable to the rendering thread that processes the result
-                        Gdx.app.postRunnable(new Runnable() {
-                            @Override
-                            public void run() {
-                                // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
-                            }
-                        });
-                    }
-                }).start();
+                try {
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // do something important here, asynchronously to the rendering thread
+                            MatthewsMST.run(nodes);
+                            // post a Runnable to the rendering thread that processes the result
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
+                                }
+                            });
+                        }
+                    }).start();
+                }  catch (StackOverflowError error) {
+                    error.printStackTrace();
+                }
 
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
