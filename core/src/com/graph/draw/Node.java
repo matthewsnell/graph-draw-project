@@ -2,6 +2,8 @@ package com.graph.draw;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,11 +22,15 @@ class Node {
     private int tempLabel;
     private int permLabel;
     private int stageNumber;
+    private Stage stage;
+    private Skin skin;
 
-    Node(int id, float x, float y, ShapeRenderer shaperenderer) {
+    Node(int id, float x, float y, ShapeRenderer shaperenderer, Stage stage, Skin skin) {
         this.x = x;
         this.y = y;
         this.id = id;
+        this.stage = stage;
+        this.skin = skin;
         sr = shaperenderer;
         tempLabel = -1;
         permLabel = -1;
@@ -33,7 +39,7 @@ class Node {
 
 
     void addConnection(Node toNode, ArrayList<Node> nodes) {
-        connections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr));
+        connections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr, stage, skin));
     }
 
     void removeConnection(Node toNode) {
@@ -41,7 +47,7 @@ class Node {
     }
 
     void addTempConnection(Node toNode, ArrayList<Node> nodes) {
-        tempConnections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr));
+        tempConnections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr, stage, skin));
     }
 
 
@@ -63,6 +69,9 @@ class Node {
     }
 
     void setConnectionsToTemp() {
+        for (Connection con: connections.values()) {
+            con.removeLabel();
+        }
         connections = tempConnections;
     }
 

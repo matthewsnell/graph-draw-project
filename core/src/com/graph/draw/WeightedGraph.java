@@ -20,34 +20,43 @@ class WeightedGraph extends Graph {
     Label weight;
     Label.LabelStyle weightStyle;
     Skin skin;
-    HashMap<Connection, Label> labels;
     WeightedGraph(ShapeRenderer sr, Stage stage, Skin skin) {
-        super(sr);
+        super(sr, stage, skin);
         this.stage = stage;
         this.skin = skin;
-        labels = new HashMap<>();
     }
 
     @Override
     void removeConnection(Node startNode, Node selectedNode) {
-        labels.get(startNode.getConnection(selectedNode)).remove();
-        labels.get(selectedNode.getConnection(startNode)).remove();
-        labels.remove(startNode.getConnection(selectedNode));
-        labels.remove(selectedNode.getConnection(startNode));
+        startNode.getConnection(selectedNode).removeLabel();
+        selectedNode.getConnection(startNode).removeLabel();
         super.removeConnection(startNode, selectedNode);
     }
 
     // Prevents auto connection which uses lengths as weights
     @Override
     void autoConnect() {
-        super.autoConnect();
         for (Node node : nodes) {
-//            node.getConnections().forEach((k, v) -> {
-//                Integer randomWeight = (int) (Math.random() * 50);
-//                v.setLength(randomWeight);
-//            });
+            int shortestDistance = 9999999;
+            Node closest = null;
+            for (Node loopNode : nodes) {
+                if (loopNode != node) {
+                    if (getDistanceBetweenNodes(node, loopNode) < shortestDistance) {
+                        if (!node.hasConnection(loopNode)) {
+                            if (!doesOverlapExisting(node, loopNode)) {
+                                closest = loopNode;
+                                shortestDistance = getDistanceBetweenNodes(node, loopNode);
+                            }
+                        }
+                    }
+                }
+            }
+            if (closest != null) {
+                addRndWeightConnection(closest, node);
+            }
         }
     }
+
 
     @Override
     void addConnection(Node startNode, Node selectedNode) {
@@ -56,7 +65,19 @@ class WeightedGraph extends Graph {
         int weight = sc.nextInt();
         startNode.getConnection(selectedNode).setLength(weight);
         selectedNode.getConnection(startNode).setLength(weight);
+        startNode.getConnection(selectedNode).addLabel(weight);
+        selectedNode.getConnection(startNode).addLabel(weight);
     }
+
+    void addRndWeightConnection(Node startNode, Node selectedNode) {
+        super.addConnection(startNode, selectedNode);
+        int weight = (int) (Math.random() * 100);
+        startNode.getConnection(selectedNode).setLength(weight);
+        selectedNode.getConnection(startNode).setLength(weight);
+        startNode.getConnection(selectedNode).addLabel(weight);
+        selectedNode.getConnection(startNode).addLabel(weight);
+    }
+
 
     // Prevents updating weight with length after node is moved
     @Override
@@ -68,11 +89,8 @@ class WeightedGraph extends Graph {
                 currentLockedNode.setX(x);
                 currentLockedNode.setY(y);
                 for (Connection con : currentLockedNode.getConnections().values()) {
-                    labels.get(con).remove();
-                    labels.get(con.getEnd().getConnection(currentLockedNode)).remove();
-                    labels.remove(con);
-                    labels.remove(con.getEnd().getConnection(currentLockedNode));
-
+                    con.setLabelPosition();
+                    con.getEnd().getConnection(con.getStart()).setLabelPosition();
                 }
             }
         }
@@ -80,22 +98,9 @@ class WeightedGraph extends Graph {
 
     void DrawConnectionLengths() {
         Label.LabelStyle weightStyle = new Label.LabelStyle();
-        weightStyle.font = skin.getFont("default-font");
+        weightStyle.font = skin.getFont("arial-small");
         weightStyle.fontColor = Colours.darkGrey;
-        for (Node node: nodes) {
-            for (Connection con : node.getConnections().values()) {
-                int xMid = (int) (node.getX() + con.getEnd().getX()) / 2;
-                int yMid = (int) ((node.getY() + con.getEnd().getY()) / 2);
-                String length = String.valueOf(con.getLength());
-                System.out.println(labels.get(con));
-                if (labels.get(con) == null) {
-                    labels.put(con, new Label(length, weightStyle));
-                    stage.addActor(labels.get(con));
-                    labels.get(con).setPosition(xMid, yMid);
-                }
-            }
         }
-    }
 
     void setWeight (int weight, Node startNode, Node endNode) {
         startNode.getConnection(endNode).setLength(weight);
@@ -107,4 +112,33 @@ class WeightedGraph extends Graph {
         DrawConnectionLengths();
     }
 
+    @Override
+    void autoConnectNonPlanar() {
+        for (Node node : nodes) {
+            int shortestDistance = 9999999;
+            Node closest = null;
+            for (Node loopNode : nodes) {
+                if (loopNode != node) {
+                    if (getDistanceBetweenNodes(node, loopNode) < shortestDistance) {
+                        if (!node.hasConnection(loopNode)) {
+                            closest = loopNode;
+                            shortestDistance = getDistanceBetweenNodes(node, loopNode);
+                        }
+                    }
+                }
+            }
+            if (closest != null) {
+                addRndWeightConnection(node, closest);
+            }
+        }
+    }
+
+    @Override
+    void clear() {
+        for (Node node: nodes) {
+            for (Connection con: node.getConnections().values()) {
+                con.removeLabel();
+            }
+        }
+    }
 }

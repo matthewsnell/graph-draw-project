@@ -5,6 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -14,15 +17,18 @@ class Graph {
     private Node pathEndNode = null;
     private int nodeSelectCount;
     private boolean autoRunDijkstra;
-
+    private boolean visualise;
     Node currentLockedNode;
     ShapeRenderer sr;
     ArrayList<Node> nodes;
+    Stage stage;
+    Skin skin;
 
-
-    Graph(ShapeRenderer sr) {
+    Graph(ShapeRenderer sr, Stage stage, Skin skin) {
         nodes = new ArrayList<Node>();
         this.sr = sr;
+        this.stage = stage;
+        this.skin = skin;
     }
 
     protected boolean isInBounds(float x, float y) {
@@ -36,7 +42,7 @@ class Graph {
         float x = Gdx.input.getX();
         float y = 1000 - Gdx.input.getY();
         if (isInBounds(x, y)) {
-            nodes.add(new Node(nodes.size(), x, y, sr));
+            nodes.add(new Node(nodes.size(), x, y, sr, stage, skin));
             nodeSelectCount = 0;
             if (nodes.size() > 1) {
                 conStartNode.setSelected(false);
@@ -52,6 +58,8 @@ class Graph {
     }
 
     void removeConnection(Node startNode, Node selectedNode) {
+        startNode.getConnection(selectedNode).removeLabel();
+        selectedNode.getConnection(startNode).removeLabel();
         startNode.removeConnection(selectedNode);
         selectedNode.removeConnection(startNode);
     }
@@ -81,6 +89,8 @@ class Graph {
     void deleteNode(Node nodeToDelete) {
         if (nodeToDelete != null) {
             for (int con : nodeToDelete.getConnections().keySet()) {
+                nodeToDelete.getConnection(nodes.get(con)).removeLabel();
+                nodes.get(con).getConnection(nodeToDelete).removeLabel();
                 nodes.get(con).removeConnection(nodeToDelete);
             }
             nodes.remove(nodeToDelete.getId());
@@ -95,13 +105,15 @@ class Graph {
                 Set<Integer> keySet = node.getConnections().keySet();
                 for (int key : keySet) {
                     if (key > nodeToDelete.getId()) {
-                        node.addTempConnection(nodes.get(key - 1), nodes);
-                    } else {
-                        node.addTempConnection(nodes.get(key), nodes);
+                        node.getConnections().put(key -1, node.getConnections().get(key -1));
+
+//                        node.addTempConnection(nodes.get(key - 1), nodes);
+//                    } else {
+//                        node.addTempConnection(nodes.get(key), nodes);
                     }
                 }
-                node.setConnectionsToTemp();
-                node.resetTempConnections();
+//                node.setConnectionsToTemp();
+//                node.resetTempConnections();
             }
         }
     }
@@ -279,6 +291,10 @@ class Graph {
         return (int) (Math.sqrt(Math.pow(xDistance, 2) + Math.pow(yDistance, 2)));
     }
 
+    void setVisualise(boolean visualise) {
+        this.visualise = visualise;
+    }
+
     void keyListeners(Node nodeUnderMouse, boolean disableListeners) {
         if (!disableListeners) {
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
@@ -339,25 +355,21 @@ class Graph {
                 autoConnect();
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-                try {
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // do something important here, asynchronously to the rendering thread
-                            MatthewsMST.run(nodes);
-                            // post a Runnable to the rendering thread that processes the result
-                            Gdx.app.postRunnable(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
-                                }
-                            });
-                        }
-                    }).start();
-                }  catch (StackOverflowError error) {
-                    error.printStackTrace();
-                }
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // do something important here, asynchronously to the rendering thread
+                        MatthewsMST.run(nodes, visualise);
+                        // post a Runnable to the rendering thread that processes the result
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
+                            }
+                        });
+                    }
+                }).start();
+            }
 
             }
             if (Gdx.input.isKeyJustPressed(Input.Keys.N)) {
@@ -374,7 +386,7 @@ class Graph {
                         }
                     }
                     if (isInBounds(x, y) && valid) {
-                        nodes.add(new Node(nodes.size(), x, y, sr));
+                        nodes.add(new Node(nodes.size(), x, y, sr, stage, skin));
                         nodeSelectCount = 0;
                         if (nodes.size() > 1) {
                             conStartNode.setSelected(false);
@@ -386,5 +398,7 @@ class Graph {
                 }
             }
         }
-    }
+
+        void clear() {
+        }
 }

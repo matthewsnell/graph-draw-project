@@ -36,15 +36,17 @@ public class Main extends ApplicationAdapter {
 	Label titleLabel;
 	Image sidePanel1;
 	Label pathFindingLabel;
+	Button visualiseToggle;
+	Label visualiseLabel;
 
 	@Override
 	public void create (){
 		isGraphLocked = false;
 		sr= new ShapeRenderer();
-		graph = new Graph(sr);
 		stage = new Stage(new ScreenViewport());
 		skin = new Skin();
 		Gdx.input.setInputProcessor(stage);
+		graph = new Graph(sr, stage, skin);
 		skin.add("red-btn", new Texture(Gdx.files.internal("btn-red.png")));
 		skin.add("default-font", new BitmapFont(Gdx.files.internal("Arial-Medium.fnt")));
 		skin.add("swiss-font", new BitmapFont(Gdx.files.internal("Swiss.fnt")));
@@ -54,6 +56,7 @@ public class Main extends ApplicationAdapter {
 		skin.add("arial-font", new BitmapFont(Gdx.files.internal("Arial.fnt")));
 		skin.add("arial-bold-large", new BitmapFont(Gdx.files.internal("Arial-Bold-Medium.fnt")));
 		skin.add("arial-med", new BitmapFont(Gdx.files.internal("Arial-Medium-Large.fnt")));
+		skin.add("arial-small", new BitmapFont(Gdx.files.internal("Arial-Small.fnt")));
 
 		Label.LabelStyle subHeadingLableStyle = new Label.LabelStyle();
 		subHeadingLableStyle.font = skin.getFont("default-font");
@@ -97,6 +100,8 @@ public class Main extends ApplicationAdapter {
 		titleLabel = new Label("Graph Mode", titleLabelStyle);
 		sidePanel1 = new Image(new Texture(Gdx.files.internal("panel.png")));
 		pathFindingLabel = new Label("Pathfinding", subHeadingLableStyle);
+		visualiseToggle = new Button(toggleStyle);
+		visualiseLabel = new Label("Visualise", textStyle);
 
 		stage.addActor(sideBar);
 		stage.addActor(loadBtn);
@@ -106,32 +111,50 @@ public class Main extends ApplicationAdapter {
 		stage.addActor(directionalLabel);
 		stage.addActor(directionalToggle);
 		stage.addActor(weightedLabel);
+		stage.addActor(titleLabel);
+		stage.addActor(sidePanel1);
+		stage.addActor(pathFindingLabel);
+		stage.addActor(visualiseLabel);
+		stage.addActor(visualiseToggle);
 		stage.addActor(overlay);
 		stage.addActor(clearMessageBox);
 		stage.addActor(clearAcceptBtn);
 		stage.addActor(cancelClearBtn);
-		stage.addActor(titleLabel);
-		stage.addActor(sidePanel1);
-		stage.addActor(pathFindingLabel);
 
 		resetBtn.setPosition(1630,920);
 		saveBtn.setPosition(1630, 20);
 		loadBtn.setPosition(1460, 20);
 		clearAcceptBtn.setPosition(910, 460);
 		cancelClearBtn.setPosition(740, 460);
-		weightedToggle.setPosition(900, 920);
-		weightedLabel.setPosition(820, 945);
+		weightedToggle.setPosition(860, 920);
+		weightedLabel.setPosition(780, 945);
 		directionalToggle.setPosition(650, 920);
 		directionalLabel.setPosition(570, 945);
 		titleLabel.setPosition(10, 940);
 		sidePanel1.setPosition(-13,630);
 		pathFindingLabel.setPosition(10, 600);
+		visualiseLabel.setPosition(990, 945);
+		visualiseToggle.setPosition(1060, 920);
+
 
 		overlay.setVisible(false);
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
 
+
+		visualiseToggle.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent changeEvent, Actor actor) {
+				if (visualiseToggle.isChecked()) {
+					graph.setVisualise(true);
+					System.out.println("check");
+				} else {
+					graph.setVisualise(false);
+					System.out.println("uncheck");
+				}
+			}
+		});
 
 		resetBtn.addListener(new ChangeListener() {
 			@Override
@@ -152,10 +175,11 @@ public class Main extends ApplicationAdapter {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
 				hideClearWarning();
+				graph.clear();
 				if (weightedToggle.isChecked()) {
 					graph = new WeightedGraph(sr, stage, skin);
 				} else {
-					graph = new Graph(sr);
+					graph = new Graph(sr, stage, skin);
 				}
 			}
 		});
@@ -166,7 +190,7 @@ public class Main extends ApplicationAdapter {
 				if (weightedToggle.isChecked()) {
 					graph = new WeightedGraph(sr, stage, skin);
 				} else {
-					graph = new Graph(sr);
+					graph = new Graph(sr, stage, skin);
 				}
 			}
 		});
@@ -209,6 +233,7 @@ public class Main extends ApplicationAdapter {
 		graph.draw();
 		stage.act();
 		stage.draw();
+		System.out.println(stage.getActors());
 	}
 
 

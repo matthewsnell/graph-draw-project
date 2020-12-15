@@ -3,14 +3,14 @@ package com.graph.draw;
 import java.util.*;
 
 public abstract class MatthewsMST {
-    static void run(ArrayList<Node> nodes) {
+    static void run(ArrayList<Node> nodes, boolean visualise) {
         ArrayList<Connection> connections = new ArrayList<>();
         ArrayList<Connection> actualConnections = new ArrayList<>();
         for (Node node : nodes) {
             connections.addAll(node.getConnections().values());
             actualConnections.addAll(node.getConnections().values());
         }
-        removeGreatest(connections, actualConnections, nodes);
+        removeGreatest(connections, actualConnections, nodes, visualise);
 
     }
 
@@ -42,14 +42,16 @@ public abstract class MatthewsMST {
 
     }
 
-    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes) {
-        int time = 1300/connections.size();
+    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes, boolean visualise) {
+        int time = (int) (2500/(Math.pow(connections.size(), 0.6)));
         Connection largest = largestConnection(connections);
         largest.setInPath(true);
-        try {
+        if (visualise) {
+            try {
             Thread.sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         Node conStart = largest.getStart();
         Node conEnd = largest.getEnd();
@@ -64,10 +66,12 @@ public abstract class MatthewsMST {
             conStart.addConnection(conEnd, nodes);
             conStart.getConnection(conEnd).setLength(length);
             conStart.getConnection(conEnd).setGreen(true);
-            try {
-                Thread.sleep(time);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (visualise) {
+                try {
+                    Thread.sleep(time);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             conStart.getConnection(conEnd).setGreen(false);
             conEnd.addConnection(conStart, nodes);
@@ -77,8 +81,7 @@ public abstract class MatthewsMST {
         }
 
         if (actualConnections.size() >= nodes.size()*2){
-            System.out.println("actual:" + actualConnections.size() + "  " + nodes.size()*2);
-            removeGreatest(connections, actualConnections, nodes);
+            removeGreatest(connections, actualConnections, nodes, visualise);
         } else {
             for (Connection con: actualConnections) {
                 con.setGreen(true);
