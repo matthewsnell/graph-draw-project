@@ -2,7 +2,6 @@ package com.graph.draw;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,8 +10,10 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.w3c.dom.Document;
+
+import java.io.File;
 
 public class Main extends ApplicationAdapter {
 	ShapeRenderer sr;
@@ -35,7 +36,7 @@ public class Main extends ApplicationAdapter {
 	Label directionalLabel;
 	Label titleLabel;
 	Image sidePanel1;
-	Label pathFindingLabel;
+	Label pathfindinglabel;
 	Button visualiseToggle;
 	Label visualiseLabel;
 
@@ -99,7 +100,7 @@ public class Main extends ApplicationAdapter {
 		directionalToggle = new Button(toggleStyle);
 		titleLabel = new Label("Graph Mode", titleLabelStyle);
 		sidePanel1 = new Image(new Texture(Gdx.files.internal("panel.png")));
-		pathFindingLabel = new Label("Pathfinding", subHeadingLableStyle);
+		pathfindinglabel = new Label("Pathfinding", subHeadingLableStyle);
 		visualiseToggle = new Button(toggleStyle);
 		visualiseLabel = new Label("Visualise", textStyle);
 
@@ -113,7 +114,7 @@ public class Main extends ApplicationAdapter {
 		stage.addActor(weightedLabel);
 		stage.addActor(titleLabel);
 		stage.addActor(sidePanel1);
-		stage.addActor(pathFindingLabel);
+		stage.addActor(pathfindinglabel);
 		stage.addActor(visualiseLabel);
 		stage.addActor(visualiseToggle);
 		stage.addActor(overlay);
@@ -132,7 +133,7 @@ public class Main extends ApplicationAdapter {
 		directionalLabel.setPosition(570, 945);
 		titleLabel.setPosition(10, 940);
 		sidePanel1.setPosition(-13,630);
-		pathFindingLabel.setPosition(10, 600);
+		pathfindinglabel.setPosition(10, 600);
 		visualiseLabel.setPosition(990, 945);
 		visualiseToggle.setPosition(1060, 920);
 
@@ -142,6 +143,12 @@ public class Main extends ApplicationAdapter {
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
 
+		pathfindinglabel.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent changeEvent, Actor actor) {
+				graph.runDijkstras();
+			}
+		});
 
 		visualiseToggle.addListener(new ChangeListener() {
 			@Override
@@ -195,6 +202,20 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
+		saveBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				FileOperations.write(graph);
+			}
+		});
+
+		loadBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				FileOperations.read(graph, sr, stage, skin);
+			}
+		});
+
 	}
 
 	void showClearWarning() {
@@ -233,8 +254,8 @@ public class Main extends ApplicationAdapter {
 		graph.draw();
 		stage.act();
 		stage.draw();
-		System.out.println(stage.getActors());
 	}
+
 
 
 

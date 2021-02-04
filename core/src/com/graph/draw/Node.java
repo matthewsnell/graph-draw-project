@@ -155,6 +155,10 @@ class Node {
         return id;
     }
 
+    int getDegree () {
+        return connections.size();
+    }
+
     boolean isInPath() {
         return isInPath;
     }

@@ -25,7 +25,7 @@ class Graph {
     Skin skin;
 
     Graph(ShapeRenderer sr, Stage stage, Skin skin) {
-        nodes = new ArrayList<Node>();
+        nodes = new ArrayList<>();
         this.sr = sr;
         this.stage = stage;
         this.skin = skin;
@@ -49,6 +49,16 @@ class Graph {
             } else {
                 conStartNode = nodes.get(0);
             }
+        }
+    }
+
+    void addManualNode(int id, float x, float y) {
+        nodes.add(new Node(id, x, y, sr, stage, skin));
+        nodeSelectCount = 0;
+        if (nodes.size() > 1) {
+            conStartNode.setSelected(false);
+        } else {
+            conStartNode = nodes.get(0);
         }
     }
 
@@ -105,15 +115,15 @@ class Graph {
                 Set<Integer> keySet = node.getConnections().keySet();
                 for (int key : keySet) {
                     if (key > nodeToDelete.getId()) {
-                        node.getConnections().put(key -1, node.getConnections().get(key -1));
+//                        node.getConnections().put(key -1, node.getConnections().get(key -1));
 
-//                        node.addTempConnection(nodes.get(key - 1), nodes);
-//                    } else {
-//                        node.addTempConnection(nodes.get(key), nodes);
+                        node.addTempConnection(nodes.get(key - 1), nodes);
+                    } else {
+                        node.addTempConnection(nodes.get(key), nodes);
                     }
                 }
-//                node.setConnectionsToTemp();
-//                node.resetTempConnections();
+                node.setConnectionsToTemp();
+                node.resetTempConnections();
             }
         }
     }
@@ -294,6 +304,36 @@ class Graph {
     void setVisualise(boolean visualise) {
         this.visualise = visualise;
     }
+    
+    boolean isEulerian() {
+        boolean eulerian = true;
+        int oddDegrees = 0;
+        for (Node node : nodes) {
+            if (node.getDegree() % 2 != 0) {
+                eulerian = false;
+                break;
+            }
+        }
+        return eulerian;
+    }
+
+    boolean isSemiEulerian() {
+        boolean semiEulerian = true;
+        int oddDegrees = 0;
+        for (Node node : nodes) {
+            if (node.getDegree() % 2 != 0) {
+                if (oddDegrees > 2) {
+                    semiEulerian = false;
+                    break;
+                } else {
+                    oddDegrees++ ;
+                }
+            }
+        }
+        return  semiEulerian;
+    }
+
+
 
     void keyListeners(Node nodeUnderMouse, boolean disableListeners) {
         if (!disableListeners) {
@@ -397,8 +437,15 @@ class Graph {
 
                 }
             }
+            if (Gdx.input.isButtonPressed(Input.Buttons.MIDDLE)) {
+                clear();
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {
+                NearestNeighbour.run(nodes, nodes.get(0));
+            }
         }
 
         void clear() {
+            nodes = new ArrayList<>();
         }
 }

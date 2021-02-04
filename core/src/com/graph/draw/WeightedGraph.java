@@ -138,6 +138,7 @@ class WeightedGraph extends Graph {
         for (Node node: nodes) {
             for (Connection con: node.getConnections().values()) {
                 con.removeLabel();
+
             }
         }
     }
