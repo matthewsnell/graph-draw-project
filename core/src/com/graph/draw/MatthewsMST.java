@@ -48,7 +48,7 @@ public abstract class MatthewsMST {
         largest.setInPath(true);
         if (visualise) {
             try {
-            Thread.sleep(time);
+            Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -68,7 +68,7 @@ public abstract class MatthewsMST {
             conStart.getConnection(conEnd).setGreen(true);
             if (visualise) {
                 try {
-                    Thread.sleep(time);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

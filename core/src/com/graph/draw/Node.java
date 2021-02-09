@@ -1,5 +1,7 @@
 package com.graph.draw;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -19,6 +21,7 @@ class Node {
     private boolean isSelected = false;
     private boolean isStart  = false;
     private boolean isEnd = false;
+    private boolean isPink = false;
     private int tempLabel;
     private int permLabel;
     private int stageNumber;
@@ -43,6 +46,7 @@ class Node {
     }
 
     void removeConnection(Node toNode) {
+        connections.get(toNode.getId()).removeLabel();
         connections.remove(toNode.getId());
     }
 
@@ -97,6 +101,10 @@ class Node {
 
     void setEnd(boolean b) {
         isEnd = b;
+    }
+
+    void setPink(boolean b) {
+        isPink =b;
     }
 
     float getX() {
@@ -169,6 +177,7 @@ class Node {
         if (isStart) sr.setColor(Colours.green);
         if (isEnd) sr.setColor(Colours.red);
         if (isSelected) sr.setColor(Colours.darkGrey);
+        if(isPink) sr.setColor(Color.PINK);
         sr.circle(x, y, 8);
         sr.end();
     }

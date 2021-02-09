@@ -7,16 +7,17 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.util.ArrayList;
 import java.util.Set;
 
-class Graph {
+public class Graph {
     private Node conStartNode;
     private Node pathStartNode = null;
     private Node pathEndNode = null;
     private int nodeSelectCount;
-    private boolean autoRunDijkstra;
+    private boolean autoRunDijkstra = false;
     private boolean visualise;
     Node currentLockedNode;
     ShapeRenderer sr;
@@ -33,7 +34,7 @@ class Graph {
 
     protected boolean isInBounds(float x, float y) {
         boolean isValid = false;
-        if (x > 320 && x < 1720 && y < 920 && y > 90)
+        if (x > 320 && x < 1720 && y < 850 && y > 90) // area for drawing graphs
             isValid = true;
         return  isValid;
     }
@@ -52,6 +53,7 @@ class Graph {
         }
     }
 
+    // Used when loading graph from json format
     void addManualNode(int id, float x, float y) {
         nodes.add(new Node(id, x, y, sr, stage, skin));
         nodeSelectCount = 0;
@@ -68,6 +70,7 @@ class Graph {
     }
 
     void removeConnection(Node startNode, Node selectedNode) {
+        // start and back nodes both removed
         startNode.getConnection(selectedNode).removeLabel();
         selectedNode.getConnection(startNode).removeLabel();
         startNode.removeConnection(selectedNode);
@@ -90,14 +93,13 @@ class Graph {
                     }
                     nodeSelectCount = 0;
                     conStartNode.setSelected(false);
-                    if (autoRunDijkstra) runDijkstras();
                 }
             }
         }
     }
 
     void deleteNode(Node nodeToDelete) {
-        if (nodeToDelete != null) {
+        if (nodeToDelete != null && (!autoRunDijkstra || (nodeToDelete != pathEndNode && nodeToDelete != pathStartNode))) {
             for (int con : nodeToDelete.getConnections().keySet()) {
                 nodeToDelete.getConnection(nodes.get(con)).removeLabel();
                 nodes.get(con).getConnection(nodeToDelete).removeLabel();
@@ -111,12 +113,12 @@ class Graph {
                 }
             }
 
+            // Decrement IDs above deleted node's
             for (Node node : nodes) {
                 Set<Integer> keySet = node.getConnections().keySet();
                 for (int key : keySet) {
                     if (key > nodeToDelete.getId()) {
-//                        node.getConnections().put(key -1, node.getConnections().get(key -1));
-
+                        // Temp connections prevent Concurrent Modification Error
                         node.addTempConnection(nodes.get(key - 1), nodes);
                     } else {
                         node.addTempConnection(nodes.get(key), nodes);
@@ -152,20 +154,22 @@ class Graph {
             }
         }
         autoRunDijkstra = false;
+        setPathEndNode(null);
+        setPathStartNode(null);
     }
 
     void setPathStartNode(Node node) {
+        if (pathStartNode != null) pathStartNode.setStart(false);
+        pathStartNode = node;
         if (node != null) {
-            if (pathStartNode != null) pathStartNode.setStart(false);
-            pathStartNode = node;
             pathStartNode.setStart(true);
         }
     }
 
     void setPathEndNode(Node node) {
+        if (pathEndNode != null) pathEndNode.setEnd(false);
+        pathEndNode = node;
         if (node != null) {
-            if (pathEndNode != null) pathEndNode.setEnd(false);
-            pathEndNode = node;
             pathEndNode.setEnd(true);
         }
     }
@@ -201,8 +205,30 @@ class Graph {
     }
 
     void runDijkstras() {
-        autoRunDijkstra = true;
-        Dijkstra.run(nodes, pathStartNode, pathEndNode);
+        // Graph must be connected with a valid start and end
+        if (MatthewsMST.DFS(nodes) == nodes.size() && pathStartNode != null && pathEndNode != null) {
+            if (visualise) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // do something important here, asynchronously to the rendering thread
+                        Dijkstra.run(nodes, pathStartNode, pathEndNode, visualise);
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+
+                            }
+                        });
+                    }
+                }).start();
+            } else {
+                Dijkstra.run(nodes, pathStartNode, pathEndNode, visualise);
+            }
+            autoRunDijkstra = !visualise;
+        } else {
+            autoRunDijkstra = false;
+            clearPath();
+        }
     }
 
     boolean doesOverlapExisting(Node startNode, Node toNode) {
@@ -337,6 +363,9 @@ class Graph {
 
     void keyListeners(Node nodeUnderMouse, boolean disableListeners) {
         if (!disableListeners) {
+            if (autoRunDijkstra) {
+                runDijkstras();
+            }
             if (Gdx.input.isKeyPressed(Input.Keys.R)) {
                 if (nodeUnderMouse == null) {
                     addNode();
@@ -350,11 +379,6 @@ class Graph {
                 if (nodeUnderMouse == null) {
                     resetCurrentLockedNode();
                 }
-            }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && (!Gdx.input.isKeyJustPressed(Input.Keys.SPACE)
-                    && !Gdx.input.isKeyJustPressed(Input.Keys.M))) {
-                clearPath();
             }
 
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
@@ -385,7 +409,12 @@ class Graph {
             }
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-                runDijkstras();
+                if (autoRunDijkstra) {
+                    setAutoRunDijkstra(false);
+                    clearPath();
+                } else {
+                    runDijkstras();
+                }
             }
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.FORWARD_DEL)) {

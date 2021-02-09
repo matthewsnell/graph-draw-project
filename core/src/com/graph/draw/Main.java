@@ -39,6 +39,9 @@ public class Main extends ApplicationAdapter {
 	Label pathfindinglabel;
 	Button visualiseToggle;
 	Label visualiseLabel;
+	TextButton topAlertMessage;
+	TextButton stopDijkstrasBtn;
+	TextButton bottomAlertMessage;
 
 	@Override
 	public void create (){
@@ -58,6 +61,8 @@ public class Main extends ApplicationAdapter {
 		skin.add("arial-bold-large", new BitmapFont(Gdx.files.internal("Arial-Bold-Medium.fnt")));
 		skin.add("arial-med", new BitmapFont(Gdx.files.internal("Arial-Medium-Large.fnt")));
 		skin.add("arial-small", new BitmapFont(Gdx.files.internal("Arial-Small.fnt")));
+		skin.add("yellow-btn", new Texture(Gdx.files.internal("btn-yellow.png")));
+		skin.add("txt-bg-box", new Texture(Gdx.files.internal("text-background-box.png")));
 
 		Label.LabelStyle subHeadingLableStyle = new Label.LabelStyle();
 		subHeadingLableStyle.font = skin.getFont("default-font");
@@ -78,6 +83,11 @@ public class Main extends ApplicationAdapter {
 		redBtnStyle.font = skin.getFont("default-font");
 		redBtnStyle.fontColor = Colours.grey;
 
+		TextButton.TextButtonStyle alertBoxStyle = new TextButton.TextButtonStyle();
+		alertBoxStyle.up = skin.newDrawable("txt-bg-box");
+		alertBoxStyle.font = skin.getFont("default-font");
+		alertBoxStyle.fontColor = Colours.red;
+
 		Button.ButtonStyle toggleStyle = new Button.ButtonStyle();
 		toggleStyle.up = skin.newDrawable("toggle-off");
 		toggleStyle.checked = skin.newDrawable("toggle-on");
@@ -86,7 +96,7 @@ public class Main extends ApplicationAdapter {
 		textStyle.font = skin.getFont("default-font");
 		textStyle.fontColor = Colours.darkGrey;
 
-		resetBtn = new TextButton("Reset", redBtnStyle);
+		resetBtn = new TextButton("Reset", greyBtnStyle);
 		loadBtn = new TextButton("Load", greyBtnStyle);
 		saveBtn = new TextButton("Save", greyBtnStyle);
 		sideBar = new Image(new Texture(Gdx.files.internal("side-bar-grey.png")));
@@ -103,6 +113,9 @@ public class Main extends ApplicationAdapter {
 		pathfindinglabel = new Label("Pathfinding", subHeadingLableStyle);
 		visualiseToggle = new Button(toggleStyle);
 		visualiseLabel = new Label("Visualise", textStyle);
+		topAlertMessage = new TextButton("This is the top alert", alertBoxStyle);
+		stopDijkstrasBtn = new TextButton("Stop", redBtnStyle);
+		bottomAlertMessage = new TextButton("This is the bottom alert", alertBoxStyle);
 
 		stage.addActor(sideBar);
 		stage.addActor(loadBtn);
@@ -117,31 +130,39 @@ public class Main extends ApplicationAdapter {
 		stage.addActor(pathfindinglabel);
 		stage.addActor(visualiseLabel);
 		stage.addActor(visualiseToggle);
+		stage.addActor(topAlertMessage);
+		stage.addActor(stopDijkstrasBtn);
+		stage.addActor(bottomAlertMessage);
+
 		stage.addActor(overlay);
 		stage.addActor(clearMessageBox);
 		stage.addActor(clearAcceptBtn);
 		stage.addActor(cancelClearBtn);
+
 
 		resetBtn.setPosition(1630,920);
 		saveBtn.setPosition(1630, 20);
 		loadBtn.setPosition(1460, 20);
 		clearAcceptBtn.setPosition(910, 460);
 		cancelClearBtn.setPosition(740, 460);
-		weightedToggle.setPosition(860, 920);
-		weightedLabel.setPosition(780, 945);
-		directionalToggle.setPosition(650, 920);
-		directionalLabel.setPosition(570, 945);
+		weightedToggle.setPosition(660, 920);
+		weightedLabel.setPosition(580, 945);
+		directionalToggle.setPosition(450, 920);
+		directionalLabel.setPosition(370, 945);
 		titleLabel.setPosition(10, 940);
 		sidePanel1.setPosition(-13,630);
 		pathfindinglabel.setPosition(10, 600);
-		visualiseLabel.setPosition(990, 945);
-		visualiseToggle.setPosition(1060, 920);
-
-
+		visualiseLabel.setPosition(790, 945);
+		visualiseToggle.setPosition(860, 920);
+		topAlertMessage.setPosition(1050, 931);
+		stopDijkstrasBtn.setPosition(1400,920);
+		bottomAlertMessage.setPosition(700, 30);
 		overlay.setVisible(false);
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
+		topAlertMessage.setVisible(false);
+		bottomAlertMessage.setVisible(false);
 
 		pathfindinglabel.addListener(new ChangeListener() {
 			@Override
@@ -202,6 +223,14 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
+		stopDijkstrasBtn.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+				graph.setAutoRunDijkstra(false);
+				graph.clearPath();
+			}
+		});
+
 		saveBtn.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
@@ -251,6 +280,7 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glHint(GL20.GL_GENERATE_MIPMAP_HINT, GL20.GL_NICEST);
 		graph.keyListeners(getNodeUnderMouse(), isGraphLocked);
+		stopDijkstrasBtn.setVisible(graph.isAutoRunDijkstra());
 		graph.draw();
 		stage.act();
 		stage.draw();

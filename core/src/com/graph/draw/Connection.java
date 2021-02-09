@@ -96,14 +96,14 @@ class Connection {
     void draw() {
         sr.begin(ShapeRenderer.ShapeType.Line);
         sr.setColor(Colours.darkGrey);
+        if (isGreen && !isInPath) {
+            sr.setColor(Colours.green);
+            sr.rectLine(start.getX(), start.getY(), end.getX(), end.getY(), 3);
+        }
         if (isInPath) {
             sr.setColor(Color.PINK);
             sr.rectLine(start.getX(), start.getY(), end.getX(), end.getY(), 3);
 
-        }
-        if (isGreen) {
-            sr.setColor(Colours.green);
-            sr.rectLine(start.getX(), start.getY(), end.getX(), end.getY(), 3);
         }
         sr.line(start.getX(), start.getY(), end.getX(), end.getY());
         sr.end();
