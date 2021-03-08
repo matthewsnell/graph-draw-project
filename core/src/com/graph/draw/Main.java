@@ -2,6 +2,7 @@ package com.graph.draw;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,9 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.w3c.dom.Document;
-
-import java.io.File;
 
 public class Main extends ApplicationAdapter {
 	ShapeRenderer sr;
@@ -157,12 +155,16 @@ public class Main extends ApplicationAdapter {
 		topAlertMessage.setPosition(1050, 931);
 		stopDijkstrasBtn.setPosition(1400,920);
 		bottomAlertMessage.setPosition(700, 30);
+
 		overlay.setVisible(false);
 		cancelClearBtn.setVisible(false);
 		clearAcceptBtn.setVisible(false);
 		clearMessageBox.setVisible(false);
 		topAlertMessage.setVisible(false);
 		bottomAlertMessage.setVisible(false);
+		pathfindinglabel.setVisible(false);
+		directionalToggle.setVisible(false);
+		directionalLabel.setVisible(false);
 
 		pathfindinglabel.addListener(new ChangeListener() {
 			@Override
@@ -209,6 +211,7 @@ public class Main extends ApplicationAdapter {
 				} else {
 					graph = new Graph(sr, stage, skin);
 				}
+				graph.setVisualise(visualiseToggle.isChecked());
 			}
 		});
 
@@ -218,8 +221,10 @@ public class Main extends ApplicationAdapter {
 				if (weightedToggle.isChecked()) {
 					graph = new WeightedGraph(sr, stage, skin);
 				} else {
+					graph.clear();
 					graph = new Graph(sr, stage, skin);
 				}
+				graph.setVisualise(visualiseToggle.isChecked());
 			}
 		});
 
@@ -241,7 +246,7 @@ public class Main extends ApplicationAdapter {
 		loadBtn.addListener(new ChangeListener() {
 			@Override
 			public void changed(ChangeEvent event, Actor actor) {
-				FileOperations.read(graph, sr, stage, skin);
+				FileOperations.read(graph);
 			}
 		});
 
@@ -274,6 +279,18 @@ public class Main extends ApplicationAdapter {
 		return nodeToSelect;
 	}
 
+	void setBottomAlertMessage() {
+		if (graph.getShortestPath() > 0) {
+			bottomAlertMessage.setText("Shortest Path: " + graph.getShortestPath());
+			bottomAlertMessage.setVisible(true);
+		} else if (graph.getMSTWeight() > 0) {
+			bottomAlertMessage.setText("MST Weight: " + graph.getMSTWeight());
+			bottomAlertMessage.setVisible(true);
+		} else {
+			bottomAlertMessage.setVisible(false);
+		}
+	}
+
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(Colours.lightGrey.r, Colours.lightGrey.g, Colours.lightGrey.b, 1);
@@ -281,9 +298,11 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glHint(GL20.GL_GENERATE_MIPMAP_HINT, GL20.GL_NICEST);
 		graph.keyListeners(getNodeUnderMouse(), isGraphLocked);
 		stopDijkstrasBtn.setVisible(graph.isAutoRunDijkstra());
+		setBottomAlertMessage();
 		graph.draw();
 		stage.act();
 		stage.draw();
+
 	}
 
 

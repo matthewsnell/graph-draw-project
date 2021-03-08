@@ -8,7 +8,7 @@ import java.util.Stack;
 public class GraphFunctions {
 
     static Queue<Node> DFS(ArrayList<Node> nodes) {
-        Queue<Node> discovered = new LinkedList<Node>();
+        Queue<Node> discovered = new LinkedList<>();
         Stack<Node> parentNode = new Stack<>();
         Node currentNode = nodes.get(0);
         parentNode.push(currentNode);

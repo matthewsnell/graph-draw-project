@@ -1,14 +1,10 @@
 package com.graph.draw;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 
 class Connection {
     private Node start;
@@ -91,6 +87,10 @@ class Connection {
         if (!(label == null)) {
             label.remove();
         }
+    }
+
+    boolean hasLabel() {
+        return label != null;
     }
 
     void draw() {

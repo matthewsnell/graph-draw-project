@@ -1,30 +1,34 @@
 package com.graph.draw;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.ArrayList;
 
-class WeightedGraph extends Graph {
-    Scanner sc = new Scanner(System.in);
-    SpriteBatch batch;
-    BitmapFont font;
+class WeightedGraph extends Graph implements Input.TextInputListener {
     Stage stage;
-    Label weight;
-    Label.LabelStyle weightStyle;
     Skin skin;
+    String dialogInputValue = "";
+    boolean isdialogInputCancelled = false;
+
     WeightedGraph(ShapeRenderer sr, Stage stage, Skin skin) {
         super(sr, stage, skin);
         this.stage = stage;
         this.skin = skin;
+    }
+
+    @Override
+    public void input(String text) {
+        System.out.println(text);
+    }
+
+    @Override
+    public void canceled() {
+
     }
 
     @Override
@@ -61,13 +65,33 @@ class WeightedGraph extends Graph {
 
     @Override
     void addConnection(Node startNode, Node selectedNode) {
-        super.addConnection(startNode, selectedNode);
-        System.out.println("please enter connection weight:");
-        int weight = sc.nextInt();
-        startNode.getConnection(selectedNode).setLength(weight);
-        selectedNode.getConnection(startNode).setLength(weight);
-        startNode.getConnection(selectedNode).addLabel(weight);
-        selectedNode.getConnection(startNode).addLabel(weight);
+        InputListener listener = new InputListener(this);
+        Gdx.input.getTextInput(listener, "Connection Length", "", "Length");
+        Integer weight = -1;
+        while (dialogInputValue == "" && !isdialogInputCancelled) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            weight = Integer.valueOf(dialogInputValue);
+        } catch (NumberFormatException e) {
+
+        }
+
+        if (dialogInputValue != "" && !isdialogInputCancelled && weight != -1) {
+            super.addConnection(startNode, selectedNode);
+            startNode.getConnection(selectedNode).setLength(weight);
+            selectedNode.getConnection(startNode).setLength(weight);
+            startNode.getConnection(selectedNode).addLabel(weight);
+            selectedNode.getConnection(startNode).addLabel(weight);
+        }
+
+        isdialogInputCancelled = false;
+        dialogInputValue = "";
     }
 
     void addRndWeightConnection(Node startNode, Node selectedNode) {
@@ -79,6 +103,18 @@ class WeightedGraph extends Graph {
         selectedNode.getConnection(startNode).addLabel(weight);
     }
 
+    @Override
+    void deleteNode(Node nodeToDelete) {
+        super.deleteNode(nodeToDelete);
+        ArrayList<Connection> connections = new ArrayList<>();
+        for (Node node : nodes) {
+            connections.addAll(node.getConnections().values());
+        }
+
+        for (Connection con : connections) {
+            con.addLabel(con.getLength());
+        }
+    }
 
     // Prevents updating weight with length after node is moved
     @Override
@@ -107,6 +143,15 @@ class WeightedGraph extends Graph {
         startNode.getConnection(endNode).setLength(weight);
         endNode.getConnection(startNode).setLength(weight);
     }
+
+    void setDialogInputValue(String inputValue) {
+        dialogInputValue = inputValue;
+    }
+
+    void setIsdialogInputCancelled(boolean isCancelled) {
+        isdialogInputCancelled = isCancelled;
+    }
+
     @Override
     void draw() {
         super.draw();

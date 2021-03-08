@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -19,6 +18,8 @@ public class Graph {
     private int nodeSelectCount;
     private boolean autoRunDijkstra = false;
     private boolean visualise;
+    private int shortestPath = -1;
+    private int mstWeight = -1;
     Node currentLockedNode;
     ShapeRenderer sr;
     ArrayList<Node> nodes;
@@ -99,7 +100,8 @@ public class Graph {
     }
 
     void deleteNode(Node nodeToDelete) {
-        if (nodeToDelete != null && (!autoRunDijkstra || (nodeToDelete != pathEndNode && nodeToDelete != pathStartNode))) {
+        if (nodeToDelete != null &&
+                (!autoRunDijkstra || (nodeToDelete != pathEndNode && nodeToDelete != pathStartNode))) {
             for (int con : nodeToDelete.getConnections().keySet()) {
                 nodeToDelete.getConnection(nodes.get(con)).removeLabel();
                 nodes.get(con).getConnection(nodeToDelete).removeLabel();
@@ -156,6 +158,7 @@ public class Graph {
         autoRunDijkstra = false;
         setPathEndNode(null);
         setPathStartNode(null);
+        shortestPath = -1;
     }
 
     void setPathStartNode(Node node) {
@@ -191,12 +194,10 @@ public class Graph {
         }
     }
 
-    void draw() {
-        int cons = 0;
 
+    void draw() {
         for (Node node : nodes) {
             node.drawConnections();
-            cons += node.getConnections().size();
 
         }
         for (Node node : nodes) {
@@ -206,29 +207,28 @@ public class Graph {
 
     void runDijkstras() {
         // Graph must be connected with a valid start and end
-        if (MatthewsMST.DFS(nodes) == nodes.size() && pathStartNode != null && pathEndNode != null) {
+        if (GraphFunctions.DFS(nodes).size() == nodes.size() && pathStartNode != null && pathEndNode != null) {
             if (visualise) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        // do something important here, asynchronously to the rendering thread
                         Dijkstra.run(nodes, pathStartNode, pathEndNode, visualise);
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
                             public void run() {
-
+                                shortestPath = pathEndNode.getPermLabel();
                             }
                         });
                     }
                 }).start();
             } else {
-                Dijkstra.run(nodes, pathStartNode, pathEndNode, visualise);
+                Dijkstra.run(nodes, pathStartNode, pathEndNode, false);
+                shortestPath = pathEndNode.getPermLabel();
             }
             autoRunDijkstra = !visualise;
         } else {
             autoRunDijkstra = false;
-            clearPath();
-        }
+            clearPath(); }
     }
 
     boolean doesOverlapExisting(Node startNode, Node toNode) {
@@ -330,6 +330,14 @@ public class Graph {
     void setVisualise(boolean visualise) {
         this.visualise = visualise;
     }
+
+    Integer getShortestPath() {
+        return shortestPath;
+    }
+
+    Integer getMSTWeight() {
+        return mstWeight;
+    }
     
     boolean isEulerian() {
         boolean eulerian = true;
@@ -371,8 +379,11 @@ public class Graph {
                     addNode();
                 }
             }
-            if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) && !Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+            if ((Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) ||
+                    Gdx.input.isButtonPressed(Input.Buttons.RIGHT))
+                    && !Gdx.input.isKeyJustPressed(Input.Keys.M)) {
                 resetCurrentLockedNode();
+                mstWeight = -1;
             }
 
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -384,7 +395,11 @@ public class Graph {
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                 if (nodeUnderMouse == currentLockedNode || nodeUnderMouse == null) {
                     moveNode();
-                    if (isAutoRunDijkstra()) runDijkstras();
+                    if (isAutoRunDijkstra()) {
+                        runDijkstras();
+                    } else {
+                        clearPath();
+                    }
                 }
             }
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
@@ -433,7 +448,17 @@ public class Graph {
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
                             public void run() {
-                                // process the result, e.g. add it to an Array<Result> field of the ApplicationListener.
+                                ArrayList<Connection> connections = new ArrayList<>();
+                                for (Node node : nodes) {
+                                    connections.addAll(node.getConnections().values());
+                                }
+                                int totalWeight = 0;
+
+                                for (Connection con : connections) {
+                                    totalWeight += con.getLength();
+                                }
+
+                                mstWeight = totalWeight / 2;
                             }
                         });
                     }
@@ -477,4 +502,5 @@ public class Graph {
         void clear() {
             nodes = new ArrayList<>();
         }
+
 }

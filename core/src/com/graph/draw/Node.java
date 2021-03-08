@@ -1,7 +1,6 @@
 package com.graph.draw;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Colors;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,7 +15,6 @@ class Node {
     private float y;
     private HashMap<Integer, Connection> connections = new HashMap<>();
     private HashMap<Integer, Connection> tempConnections = new HashMap<>();
-    private ShapeRenderer sr;
     private boolean isInPath = false;
     private boolean isSelected = false;
     private boolean isStart  = false;
@@ -25,16 +23,18 @@ class Node {
     private int tempLabel;
     private int permLabel;
     private int stageNumber;
-    private Stage stage;
-    private Skin skin;
+    private final ShapeRenderer SR;
+    private final Stage STAGE;
+    private final Skin SKIN;
+
 
     Node(int id, float x, float y, ShapeRenderer shaperenderer, Stage stage, Skin skin) {
         this.x = x;
         this.y = y;
         this.id = id;
-        this.stage = stage;
-        this.skin = skin;
-        sr = shaperenderer;
+        this.STAGE = stage;
+        this.SKIN = skin;
+        SR = shaperenderer;
         tempLabel = -1;
         permLabel = -1;
         stageNumber = -1;
@@ -42,7 +42,7 @@ class Node {
 
 
     void addConnection(Node toNode, ArrayList<Node> nodes) {
-        connections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr, stage, skin));
+        connections.put(toNode.getId(), new Connection(nodes.get(id), toNode, SR, STAGE, SKIN));
     }
 
     void removeConnection(Node toNode) {
@@ -51,7 +51,7 @@ class Node {
     }
 
     void addTempConnection(Node toNode, ArrayList<Node> nodes) {
-        tempConnections.put(toNode.getId(), new Connection(nodes.get(id), toNode, sr, stage, skin));
+        tempConnections.put(toNode.getId(), new Connection(nodes.get(id), toNode, SR, STAGE, SKIN));
     }
 
 
@@ -80,10 +80,10 @@ class Node {
     }
 
     void resetTempConnections() {
-        tempConnections =  new HashMap<Integer, Connection>();
+        tempConnections = new HashMap<>();
     }
     void drawConnections() {
-        ArrayList<Connection> cons = new ArrayList<Connection>(connections.values());
+        ArrayList<Connection> cons = new ArrayList<>(connections.values());
         for (Connection vert : cons) {
             vert.draw();
         }
@@ -155,10 +155,6 @@ class Node {
         return permLabel;
     }
 
-    int getStageNumber() {
-        return stageNumber;
-    }
-
     int getId() {
         return id;
     }
@@ -171,14 +167,14 @@ class Node {
         return isInPath;
     }
     void draw() {
-        sr.begin(ShapeType.Filled);
-        sr.setColor(Colours.brown);
-        if (isInPath)  sr.setColor(Colours.green);
-        if (isStart) sr.setColor(Colours.green);
-        if (isEnd) sr.setColor(Colours.red);
-        if (isSelected) sr.setColor(Colours.darkGrey);
-        if(isPink) sr.setColor(Color.PINK);
-        sr.circle(x, y, 8);
-        sr.end();
+        SR.begin(ShapeType.Filled);
+        SR.setColor(Colours.brown);
+        if (isInPath)  SR.setColor(Colours.green);
+        if (isStart) SR.setColor(Colours.green);
+        if (isEnd) SR.setColor(Colours.red);
+        if (isSelected) SR.setColor(Colours.darkGrey);
+        if(isPink) SR.setColor(Color.PINK);
+        SR.circle(x, y, 8);
+        SR.end();
     }
 }

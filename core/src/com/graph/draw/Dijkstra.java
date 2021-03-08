@@ -68,7 +68,7 @@ abstract class Dijkstra {
     }
 
     // Find the lowest temp label on the graph
-    private static Node getLowestNode(ArrayList<Node> nodes, boolean visualise) {
+    private static Node getLowestNode(ArrayList<Node> nodes) {
         int lowest = 999999999;
         int lowestId = -1;
         for (Node currentNode : nodes) {
@@ -81,6 +81,7 @@ abstract class Dijkstra {
     }
 
     // Find shortest path by interpreting perm labels
+    @SuppressWarnings("BusyWait")
     private static void findPath(ArrayList<Node> nodes, Node startNode, Node endNode, boolean visualise) {
         int time = (int) (1000/(Math.pow(nodes.size(), 1)));
         while (endNode.getId() != startNode.getId()) {
@@ -88,7 +89,7 @@ abstract class Dijkstra {
 
             if (visualise) {
                 try {
-                    Thread.sleep(time*2);
+                    Thread.sleep(time* 2L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -100,7 +101,7 @@ abstract class Dijkstra {
                 if (visualise) {
                     currentCon.setInPath(true);
                     try {
-                        Thread.sleep(time*4);
+                        Thread.sleep(time* 4L);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -139,7 +140,7 @@ abstract class Dijkstra {
         setupStart(start);
         addTempLabels(nodes, start, visualise);
         while (!isComplete(nodes)) {
-            addTempLabels(nodes, getLowestNode(nodes, visualise), visualise);
+            addTempLabels(nodes, getLowestNode(nodes), visualise);
         }
         end.setInPath(true);
         findPath(nodes, start, end, visualise);

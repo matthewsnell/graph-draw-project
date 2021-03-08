@@ -14,41 +14,15 @@ public abstract class MatthewsMST {
 
     }
 
-
-    static Integer DFS(ArrayList<Node> nodes) {
-        Queue<Node> discovered = new LinkedList<Node>();
-        Stack<Node> parentNode = new Stack<>();
-        Node currentNode = nodes.get(0);
-        parentNode.push(currentNode);
-        discovered.add(currentNode);
-        while (parentNode.size() > 0) {
-            currentNode = parentNode.peek();
-            ArrayList<Integer> currentNodeCons = new ArrayList<>(currentNode.getConnections().keySet());
-            boolean allChildrenDiscovered = true;
-            for (Integer con: currentNodeCons) {
-                if (!discovered.contains(nodes.get(con))) {
-                    allChildrenDiscovered = false;
-                    parentNode.push(nodes.get(con));
-                    discovered.add(nodes.get(con));
-                    break;
-                }
-            }
-            if (allChildrenDiscovered) {
-                parentNode.pop();
-            }
-        }
-        return discovered.size();
-
-
-    }
-
     static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes, boolean visualise) {
         int time = (int) (2500/(Math.pow(connections.size(), 0.6)));
+        boolean weighted = false;
         Connection largest = largestConnection(connections);
+        weighted = largest.hasLabel();
         largest.setInPath(true);
         if (visualise) {
             try {
-            Thread.sleep(10);
+            Thread.sleep(time);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -56,26 +30,30 @@ public abstract class MatthewsMST {
         Node conStart = largest.getStart();
         Node conEnd = largest.getEnd();
         int length = largest.getLength();
-        connections.remove(connections.indexOf(largest));
-        connections.remove(connections.indexOf(largest.getEnd().getConnection(largest.getStart())));
-        actualConnections.remove(actualConnections.indexOf(largest));
-        actualConnections.remove(actualConnections.indexOf(largest.getEnd().getConnection(largest.getStart())));
+        connections.remove(largest);
+        connections.remove(largest.getEnd().getConnection(largest.getStart()));
+        actualConnections.remove(largest);
+        actualConnections.remove(largest.getEnd().getConnection(largest.getStart()));
         largest.getStart().removeConnection(largest.getEnd());
         largest.getEnd().removeConnection(largest.getStart());
-        if (DFS(nodes) < nodes.size()) {
+        if (GraphFunctions.DFS(nodes).size() < nodes.size()) {
             conStart.addConnection(conEnd, nodes);
-            conStart.getConnection(conEnd).setLength(length);
-            conStart.getConnection(conEnd).setGreen(true);
+            Connection startEndCon = conStart.getConnection(conEnd);
+            startEndCon.setLength(length);
+            startEndCon.setGreen(true);
+            if (weighted) startEndCon.addLabel(startEndCon.getLength());
+
             if (visualise) {
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(time);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            conStart.getConnection(conEnd).setGreen(false);
+            startEndCon.setGreen(false);
             conEnd.addConnection(conStart, nodes);
-            conEnd.getConnection(conStart).setLength(length);
+            Connection endStartCon = conEnd.getConnection(conStart);
+            endStartCon.setLength(length);
             actualConnections.add(conStart.getConnection(conEnd));
             actualConnections.add(conEnd.getConnection(conStart));
         }
@@ -95,7 +73,9 @@ public abstract class MatthewsMST {
                 con.setGreen(false);
             }
         }
+
     }
+
     static Connection largestConnection(ArrayList<Connection> connections) {
         Connection biggest = connections.get(0);
         for (Connection con: connections) {
@@ -106,3 +86,4 @@ public abstract class MatthewsMST {
         return biggest;
     }
 }
+

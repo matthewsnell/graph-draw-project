@@ -1,8 +1,6 @@
 package com.graph.draw;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Iterator;
 
 abstract class FileOperations {
     static JSONObject wrapperObj;
@@ -22,6 +19,7 @@ abstract class FileOperations {
     static JSONArray nodesArray;
     static FileWriter writeFile;
 
+    @SuppressWarnings("unchecked")
     static void write(Graph graph) {
         wrapperObj = new JSONObject();
         graphParamsObj = new JSONObject();
@@ -69,7 +67,8 @@ abstract class FileOperations {
         }
     }
 
-    static void read(Graph graph, ShapeRenderer sr, Stage stage, Skin skin) {
+    @SuppressWarnings("unchecked")
+    static void read(Graph graph) {
         boolean weighted = false;
 
         graph.clear();
@@ -87,9 +86,7 @@ abstract class FileOperations {
 
 
             JSONArray nodesArray = (JSONArray) jsonObject.get("nodes");
-            Iterator<JSONObject> nodeIterator = nodesArray.iterator();
-            while (nodeIterator.hasNext()) {
-                JSONObject node = nodeIterator.next();
+            for (JSONObject node : (Iterable<JSONObject>) nodesArray) {
                 int nodeID = Integer.parseInt(node.get("id").toString());
                 float nodeX = Float.parseFloat(node.get("x").toString());
                 float nodeY = Float.parseFloat(node.get("y").toString());
@@ -98,9 +95,7 @@ abstract class FileOperations {
             }
 
             JSONArray connectionsArray = (JSONArray) jsonObject.get("connections");
-            Iterator<JSONObject> conIterator = connectionsArray.iterator();
-            while (conIterator.hasNext()) {
-                JSONObject con = conIterator.next();
+            for (JSONObject con : (Iterable<JSONObject>) connectionsArray) {
                 int startNodeID = Integer.parseInt(con.get("start").toString());
                 int endNodeID = Integer.parseInt(con.get("end").toString());
                 int length = Integer.parseInt(con.get("length").toString());
@@ -113,11 +108,7 @@ abstract class FileOperations {
                 }
 
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
+        } catch (IOException | ParseException | NullPointerException e) {
             e.printStackTrace();
         }
 
