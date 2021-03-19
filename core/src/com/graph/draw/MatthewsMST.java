@@ -14,7 +14,8 @@ public abstract class MatthewsMST {
 
     }
 
-    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, ArrayList<Node> nodes, boolean visualise) {
+    static void removeGreatest(ArrayList<Connection> connections, ArrayList<Connection> actualConnections, 
+                               ArrayList<Node> nodes, boolean visualise) {
         int time = (int) (2500/(Math.pow(connections.size(), 0.6)));
         boolean weighted = false;
         Connection largest = largestConnection(connections);
